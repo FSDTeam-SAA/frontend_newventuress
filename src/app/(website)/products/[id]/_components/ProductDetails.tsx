@@ -287,8 +287,9 @@ const ProductDetails = () => {
         }}
       >
         <h2 className="text-gradient dark:text-gradient-pink mt-0 md:mt-[50px] text-center text-[25px] font-[600]">
-          Review
+          Review 23
         </h2>
+        {/* ================================================= reviews show hobe (amit)========================================================= */}
         <div>
           {reviews.map((review, index) => (
             <div
