@@ -17,6 +17,8 @@ import ErrorContainer from "@/components/ui/error-container";
 import { ProductReviewDataResponse } from "@/data/productReview";
 import NotFound from "@/components/shared/NotFound/NotFound";
 import { TextAnimate } from "@/components/magicui/text-animate";
+import {  SingleProductDataType } from "./singleProductDataType";
+import { useSession } from "next-auth/react";
 
 const productData: ProductData = {
   title: "American Beauty",
@@ -87,6 +89,10 @@ const ProductDetails = ({ productId }: props) => {
   const [isWishlist, setIsWishlist] = useState(false);
   const relatedItemsRef = useRef(null);
   const reviewSectionRef = useRef(null);
+  const session = useSession();
+  const token = session.data?.user?.token
+ 
+  
 
   const { data: reviews, isLoading: loding, isError: dataerror, } = useQuery<ProductReviewDataResponse>({
     queryKey: ["allreview"],
@@ -97,8 +103,8 @@ const ProductDetails = ({ productId }: props) => {
       }).then((res) => res.json() as Promise<ProductReviewDataResponse>),
 
   });
-  console.log("data", reviews);
-  
+  // console.log("data", reviews);
+
   let content;
   if (loding) {
     content = (
@@ -124,7 +130,7 @@ const ProductDetails = ({ productId }: props) => {
   else {
     content = (
       <div>
-        {reviews?.data.map ((review, index) => (
+        {reviews?.data.map((review, index) => (
           <div
             key={index}
             className="border-b-[1px] border-[#C5C5C5] last:border-none"
@@ -142,6 +148,30 @@ const ProductDetails = ({ productId }: props) => {
       </div>
     )
   }
+  
+
+  const { data: singleProduct, } = useQuery<SingleProductDataType>({
+    // ==========================loding handle hoi nai ========================================================
+    queryKey: ["singleproduct", productId], // Ensure cache is specific to the product
+    queryFn: async () => {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/product/${productId}`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (!res.ok) throw new Error("Failed to fetch product");
+      return res.json() as Promise<SingleProductDataType>;
+    },
+  });
+  
+  console.log("data", singleProduct);
+ 
+  
+
+  
+
 
   const { scrollYProgress: relatedItemsScrollY } = useScroll({
     target: relatedItemsRef,
@@ -190,10 +220,6 @@ const ProductDetails = ({ productId }: props) => {
     return <ErrorContainer message={error.message} />;
   }
 
-
-
-
-
   return (
     <div >
       <SectionHeading heading={"Our products"} subheading={""} />
@@ -208,11 +234,11 @@ const ProductDetails = ({ productId }: props) => {
               <div className="flex max-w-full flex-col">
                 <div className="flex w-full flex-col">
                   <div className="text-gradient dark:text-gradient-pink text-4xl font-semibold leading-tight">
-                    {productData.title}
+                    {singleProduct?.data.title}
                   </div>
                   <div className="mt-2 flex w-full flex-col items-start">
                     <StarRating
-                      rating={productData.rating}
+                      rating={4}
                       onChange={() => { }}
                     />
                     <div className="mt-2 flex -translate-x-[7px] items-center gap-2 text-base leading-tight text-[#E10E0E]">
@@ -236,7 +262,7 @@ const ProductDetails = ({ productId }: props) => {
                   </div>
                 </div>
                 <div className="mt-4 w-full font-[16px] leading-[19px] text-[#444444]">
-                  {productData.description}
+                  {singleProduct?.data.description}
                 </div>
                 <div className="mt-3 flex gap-4">
                   <span className="text-[#9C9C9C]">Store:</span>
@@ -314,7 +340,7 @@ const ProductDetails = ({ productId }: props) => {
               Description
             </div>
             <div className="mt-5 text-base leading-5 text-[#444444] max-md:max-w-full">
-              {productData.description}
+              {singleProduct?.data.description}
             </div>
           </div>
         </div>
@@ -348,7 +374,7 @@ const ProductDetails = ({ productId }: props) => {
         <h2 className="text-gradient dark:text-gradient-pink mt-0 md:mt-[50px] text-center text-[25px] font-[600]">
           Review
         </h2>
-        {/* ================================================= reviews show hobe (amit)========================================================= */}
+        {/* ================================================= reviews show hobe========================================================= */}
         <div>
           {content}
           <div className="mb-[30px] h-[1px] w-full border-b-[1px] border-[#C5C5C5]" />

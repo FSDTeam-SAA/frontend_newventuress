@@ -10,6 +10,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Accordion, AccordionItem } from "@/components/ui/motion-accordion";
+import { countriesData } from "@/data/countries";
 import { canadaProvinces, usStates } from "@/data/registration";
 import {
   addBusinessField,
@@ -323,8 +324,11 @@ const LicenseGroup = ({ country, index, metrcLicense = [""], cannabisLicense = [
   const lastCannabisLicenceIndex = cannabisLicense.length - 1
   const lastBusinessLicenceIndex = businessLicenses.length - 1;
 
+  const countriesMap = countriesData.map((i) => ({name: i.country, allow: i.allow}))
 
-  const allStates = [...usStates, ...canadaProvinces];
+
+  const allStates = [...usStates, ...canadaProvinces, ...countriesMap];
+  
 
   const state = allStates.find((state) => state.name === title);
 
@@ -333,7 +337,7 @@ const LicenseGroup = ({ country, index, metrcLicense = [""], cannabisLicense = [
 
 
 
-
+  const isIndustryHempSelectedOrBoth = JSON.stringify(authState.industry) === JSON.stringify(["CBD/HEMP"]) || JSON.stringify(authState.industry) === JSON.stringify(["CBD/HEMP", "Recreational Cannabis", "Select All"])
 
 
 
@@ -397,7 +401,7 @@ const LicenseGroup = ({ country, index, metrcLicense = [""], cannabisLicense = [
       </div>
       }
       
-     {isOnlyHempSelected && <div className="space-y-2">
+     {isIndustryHempSelectedOrBoth && <div className="space-y-2">
         <label className="text-sm font-medium text-[#444444]">
           Provide your Business license {isOnlyHempSelected &&  <span className="text-red-500">*(Only HEMP/CBD Allowed)</span>}
         </label>

@@ -97,7 +97,7 @@ const SignUpOverview = () => {
 )}
 
             {item?.businessLicense.length > 0 && item.businessLicense.some((license) => license.trim() !== "") && (
-  <h3 className="flex items-center gap-x-4 flex-wrap">Business license No: {item.businessLicense.join(", ")}        <CustomBadge status={approvalStatus === "approved" ? "approved" : "pending"}>{approvalStatus === "approved" ? "AUto Approved" : "Peending"}</CustomBadge></h3>
+  <h3 className="flex items-center gap-x-4 flex-wrap">Business license No: {item.businessLicense.join(", ")}        <CustomBadge status={approvalStatus === "approved" ? "approved" : approvalStatus === "one" ? "approved" :  "pending"}>{approvalStatus === "approved" ? "Auto Approved" : approvalStatus === "one" ? "Auto Approved" : "Peending"}</CustomBadge></h3>
 )}
 
               </div>
