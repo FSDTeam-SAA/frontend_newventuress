@@ -3,18 +3,25 @@ import dynamic from "next/dynamic";
 
 // Local imports
 
-import FeaturedProductCard from "@/components/shared/cards/featured_card";
+
 import SectionHeading from "@/components/shared/SectionHeading/SectionHeading";
 import ProductCardSkeleton from "@/components/shared/skeletons/productCardSkeleton";
 import { Button } from "@/components/ui/button";
 import ErrorContainer from "@/components/ui/error-container";
-import { Product, ProductResponse } from "@/types/product";
+import { ProductResponse } from "@/types/product";
+
+import { Product  } from "@/types/product";
+
+
 import { useQuery } from "@tanstack/react-query";
 import Image from "next/image";
+import OurAuctionCard from "./OurAuctionCard";
 
 interface FeaturedCardsProps {
   data: Product[],
-  isLoading: boolean
+  isLoading: boolean,
+  
+
 }
 const FeaturedCards = ({data, isLoading}: FeaturedCardsProps) => {
 
@@ -28,9 +35,17 @@ const FeaturedCards = ({data, isLoading}: FeaturedCardsProps) => {
     </div>
   } else {
     content = <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-    {data.slice(0, 4).map((items: any) => (
-        <FeaturedProductCard key={items._id} product={items} />
-    ))}
+   
+   
+    {/* {data.slice(0, 4).map((items: any) => (
+        <OurAuctionCard key={items._id} product={items} />
+    ))} */}
+
+{data?.slice(0, 4).map((auction, index) => (
+  <OurAuctionCard key={auction._id} auction={auction} index={index} />
+))}
+
+
   </div>
   }
 
@@ -53,7 +68,7 @@ export default function OurAuction({token} : Props) {
       queryKey: ["products"],
       queryFn: async () => {
         const response = await fetch(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/product`, {
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/auction/recent`, {
             headers: {
               'Authorization': `Bearer ${token}`
             }
@@ -67,7 +82,7 @@ export default function OurAuction({token} : Props) {
 
     if(!token) return null
   const products = data?.data;
-  
+  console.log("our auctiondaata",products)
 
   let content;
 
@@ -88,7 +103,7 @@ export default function OurAuction({token} : Props) {
       <FeaturedCards data={products} isLoading={isLoading} />
 
       <div className="space-y-4">
-        <BiddingCard product={products[0]} />
+        <BiddingCard product={products[4]} />
         <JoinAsSeller />
       </div>
     </div>

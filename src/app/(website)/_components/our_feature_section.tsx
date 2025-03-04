@@ -26,10 +26,12 @@ const OurFeatureSection = ({token} : Props) => {
 
    //? // Fetch products
    const { data, isError, error, isLoading } = useQuery<ProductResponse>({
-    queryKey: ["products"],
+    queryKey: ["featured-products"],
     queryFn: async () => {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/`, {
+
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/product/featured`, {
+
           headers: {
             'Authorization': `Bearer ${token}`
           }

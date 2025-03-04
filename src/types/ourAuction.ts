@@ -1,4 +1,4 @@
-export interface Product {
+export interface OurAuctionProduct {
     _id: string;
     storeId: string;
     title: string;
@@ -12,23 +12,22 @@ export interface Product {
     purchasedPrice: number;
     selllingPrice: number;
     discountPrice: number;
-    startingPrice: number;
     size: string;
     quantity: string;
-    startingTime: string;
-    endingTime: string;
-
-    stockQuantity: number;
     sku: string;
     coa: boolean;
+    startingPrice: number;
+    endingTime: string;
+    startingTime: string;
     tags: string[];
     review: string[];
     __v: number;
     purchases: number;
+    isLoading: boolean
   }
 
-  export interface ProductResponse {
+  export interface OurAuctionProductResponse {
     status: boolean;
-    data?: Product[],
+    data?: OurAuctionProduct[],
     message?: string
   }
