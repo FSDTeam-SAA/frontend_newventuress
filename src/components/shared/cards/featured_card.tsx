@@ -59,11 +59,16 @@ export default function FeaturedProductCard({ product }: { product: Product }) {
       <div className="overflow-hidden rounded-[8px]">
         <Image
           loading="lazy"
-          src={product?.images[0] ??  "/assets/blogs/blogs.png"} 
+          unoptimized={true}
+           src={Array.isArray(product?.images) && product?.images.length > 0 
+                ? product.images[0] 
+                : "https://images.pexels.com/photos/3689307/pexels-photo-3689307.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"}
           alt="Product image"
           width={300}
           height={100}
           className="z-0 aspect-[1.07] w-full rounded-[8px] object-cover duration-300 hover:scale-105"
+          onError={(e) => (e.currentTarget.src = "https://images.pexels.com/photos/7667735/pexels-photo-7667735.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1")}
+
         />
       </div>
 

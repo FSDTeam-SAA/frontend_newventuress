@@ -142,7 +142,7 @@ const AddAuctionForm: React.FC = () => {
             "bg-primary dark:bg-pinkGradient px-4 py-3 mb- rounded-t-3xl text-white text-[32px] leading-[38px] font-semibold h-[78px] flex items-center"
           }
         >
-          Add Auction
+          Add Auction Product
         </div>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)}>
@@ -196,7 +196,7 @@ const AddAuctionForm: React.FC = () => {
                   render={({ field }) =>
                     <FormItem>
                       <FormLabel className="leading-[19.2px] text-[#9C9C9C] text-[16px] font-medium">
-                        Product Type<span className="text-red-500">*</span>
+                        Industry Type<span className="text-red-500">*</span>
                       </FormLabel>
                       <FormControl>
                         <div className="space-y-2">
@@ -215,7 +215,7 @@ const AddAuctionForm: React.FC = () => {
                                 className="h-4 w-4 border-[#C5C5C5]"
                               />
                               <Label htmlFor={type} className="text-[16px] font-medium text-[#9C9C9C]">
-                                {type}
+                                 {type === "CBD" ? "HEMP/CBD" : "RECREATIONAL CANNABIS"}
                               </Label>
                             </div>
                           ))}

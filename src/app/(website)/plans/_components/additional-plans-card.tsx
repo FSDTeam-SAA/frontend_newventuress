@@ -32,7 +32,7 @@ const PlansCard = ({ data, userId }: Props) => {
       </div>
       <CardContent className="p-6">
         <div className="mb-4">
-          <p className="text-3xl font-bold">{data.price}</p>
+          <p className="text-3xl font-bold">${data.price}</p>
         </div>
 
         <div className="space-y-4 mb-6">

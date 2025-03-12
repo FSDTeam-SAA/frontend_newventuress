@@ -222,7 +222,7 @@ export function AddListingForm({setShowAddAuction}: Props) {
                     render={({ field }) =>
                       <FormItem>
                         <FormLabel className="leading-[19.2px] text-base text-[#444444] font-normal">
-                          Product Type<span className="text-red-500">*</span>
+                          Industry Type<span className="text-red-500">*</span>
                         </FormLabel>
                         <FormControl>
                           <div className="space-y-2">
@@ -247,7 +247,7 @@ export function AddListingForm({setShowAddAuction}: Props) {
                                   htmlFor={type}
                                   className="leading-[19.2px] text-base text-[#444444] font-normal"
                                 >
-                                  {type}
+                                  {type === "cbd" ? "RECREATIONAL CANNABIS" : "HEMP/CBD" }
                                 </Label>
                               </div>
                             )}

@@ -34,7 +34,7 @@ export const sidebarContents = [
   },
   {
     id: 3,
-    name: "Auction/listing",
+    name: "Regular Listing",
     icon: <Box className="h-[16px] w-[16px]" />,
     href: "/vendor-dashboard/auctions",
   },

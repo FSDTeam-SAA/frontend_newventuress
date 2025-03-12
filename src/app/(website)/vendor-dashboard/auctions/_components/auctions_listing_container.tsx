@@ -82,7 +82,7 @@ const TableContainer = ({ data, columns }: TableContainerProps) => {
       <DataTable
         table={table}
         columns={columns}
-        title="Auctions/Listing"
+        title="Regular Listing"
         titleClass="h-[78px] flex items-center text-[28px] leading-[33.6px] font-semibold"
       />
     </>

@@ -44,13 +44,25 @@ const ProductsContainer = ({ token }: Props) => {
         page: currentPage.toString(),
       })
 
+      // Handle categories - add each category ID individually
       if (selectedCategories.length > 0) {
-        params.append("categories", selectedCategories.join(","))
+        // Based on your API URL example, it seems the API expects a single category ID
+        // If your API supports multiple categories, you might need to adjust this
+        selectedCategories.forEach((categoryId) => {
+          params.append("categories", categoryId)
+        })
       }
 
+      // Handle availability - add each availability option individually
       if (selectedAvailability.length > 0) {
-        params.append("availability", selectedAvailability.join(","))
+        // Based on your API URL example, it seems the API expects a single availability value
+        // If your API supports multiple availability options, you might need to adjust this
+        selectedAvailability.forEach((availability) => {
+          params.append("availability", availability)
+        })
       }
+
+      console.log(`API Request URL: ${process.env.NEXT_PUBLIC_BACKEND_URL}/api/products/filter?${params}`)
 
       const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/products/filter?${params}`, {
         headers: {
@@ -132,16 +144,15 @@ const ProductsContainer = ({ token }: Props) => {
         <div className="flex-1">{content}</div>
       </div>
 
-
       {/* Pagination */}
       {!isLoading && !isError && (
-    <div className="mt-[40px]">
-      <PacificPagination
-        currentPage={currentPage}
-        onPageChange={(page) => setCurrentPage(page)}
-        totalPages={20} // Assuming 9 items per page
-      />
-    </div>
+      <div className="mt-[40px]">
+        <PacificPagination
+          currentPage={currentPage}
+          onPageChange={(page) => setCurrentPage(page)}
+          totalPages={20} // Assuming 9 items per page
+        />
+      </div>
   )}
     </div>
   )

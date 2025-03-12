@@ -56,7 +56,11 @@ export default function SidebarFilters({ onFilterChange, priceRange }: SidebarFi
     },
   })
 
-  const availabilityOptions = ["In Stock", "Out Of Stock"]
+  // Updated to match API expectations (lowercase)
+  const availabilityOptions = [
+    { label: "In Stock", value: "in stock" },
+    { label: "Out Of Stock", value: "out of stock" },
+  ]
 
   // Handle slider changes for price
   const handlePriceChange = (value: number[]) => {
@@ -98,9 +102,9 @@ export default function SidebarFilters({ onFilterChange, priceRange }: SidebarFi
   }
 
   // Handle availability selection
-  const handleAvailabilityChange = (status: string) => {
+  const handleAvailabilityChange = (value: string) => {
     setSelectedAvailability((prev) => {
-      const updated = prev.includes(status) ? prev.filter((s) => s !== status) : [...prev, status]
+      const updated = prev.includes(value) ? prev.filter((s) => s !== value) : [...prev, value]
 
       onFilterChange({
         priceRange,
@@ -180,14 +184,14 @@ export default function SidebarFilters({ onFilterChange, priceRange }: SidebarFi
         </h2>
         <div className="space-y-3">
           {availabilityOptions.map((option) => (
-            <div key={option} className="flex items-center space-x-2">
+            <div key={option.value} className="flex items-center space-x-2">
               <Checkbox
-                id={option}
-                checked={selectedAvailability.includes(option)}
-                onCheckedChange={() => handleAvailabilityChange(option)}
+                id={option.value}
+                checked={selectedAvailability.includes(option.value)}
+                onCheckedChange={() => handleAvailabilityChange(option.value)}
               />
-              <Label htmlFor={option} className="text-[#434851]">
-                {option}
+              <Label htmlFor={option.value} className="text-[#434851]">
+                {option.label}
               </Label>
             </div>
           ))}
