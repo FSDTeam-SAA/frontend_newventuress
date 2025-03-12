@@ -252,7 +252,7 @@ const AddAuctionForm: React.FC = () => {
                   render={({ field }) =>
                     <FormItem className="flex flex-col ">
                       <FormLabel className="leading-[19.2px] text-[#444444] text-[16px] font-normal">
-                        Starting Price
+                        Opening Price
                       </FormLabel>
                       <div className="flex justify-between mt-2 w-full whitespace-nowrap rounded-md border border-solid border-[#B0B0B0] h-[51px]">
                         <div className="gap-3 self-stretch px-4 dark:!text-[#6841A5] text-sm font-semibold leading-tight text-[#0057A8] dark:bg-[#482D721A] bg-gray-200 rounded-l-lg h-[49px] w-[42px] flex items-center justify-center">
@@ -279,7 +279,7 @@ const AddAuctionForm: React.FC = () => {
                       render={({}) =>
                         <FormItem>
                           <FormLabel className="leading-[19.2px] text-[#444444] text-[16px] font-normal">
-                            Starting Time
+                            Starting Day & Time
                           </FormLabel>
                           <FormControl>
                             <DateTimePicker
@@ -302,7 +302,7 @@ const AddAuctionForm: React.FC = () => {
                       render={({}) =>
                         <FormItem>
                           <FormLabel className="leading-[19.2px] text-[#444444] text-[16px] font-normal">
-                            Ending Time
+                            Ending Day & Time
                           </FormLabel>
                           <FormControl>
                             <DateTimePicker
@@ -350,7 +350,7 @@ const AddAuctionForm: React.FC = () => {
                       render={({ field }) =>
                         <FormItem>
                           <FormLabel className="leading-[19.2px] text-[#444444] text-[16px] font-normal">
-                            Stock Quantity
+                            Quantity
                           </FormLabel>
                           <FormControl>
                             <Input
