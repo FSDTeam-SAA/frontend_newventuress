@@ -167,11 +167,11 @@ export default function LoginForm() {
                     className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                   >
                     I agree with the{" "}
-                    <Link href="#" className="text-gradient dark:text-gradient-pink">
+                    <Link href="/term-and-conditions" className="text-gradient dark:text-gradient-pink">
                       term of service
                     </Link>{" "}
                     and{" "}
-                    <Link href="#" className="text-gradient dark:text-gradient-pink">
+                    <Link href="/privacyPolicy" className="text-gradient dark:text-gradient-pink">
                       privacy policy
                     </Link>
                   </label>

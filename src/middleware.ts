@@ -11,13 +11,13 @@ export default auth((req) => {
   const { nextUrl } = req;
   const isLoggedin = !!req.auth;
 
- // Allow access only to the homepage ("/")
- if (nextUrl.pathname === "/") {
-  return NextResponse.next();
-}
+//  // Allow access only to the homepage ("/")
+//  if (nextUrl.pathname === "/") {
+//   return NextResponse.next();
+// }
 
-// Redirect all other pages back to the home page
-return NextResponse.redirect(new URL("/", nextUrl));
+// // Redirect all other pages back to the home page
+// return NextResponse.redirect(new URL("/", nextUrl));
 
 
 
