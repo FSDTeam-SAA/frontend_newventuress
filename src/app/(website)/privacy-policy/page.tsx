@@ -66,7 +66,7 @@ function Page() {
           </div>
 
           <div className="flex justify-end mb-4">
-            <Button variant="outline" onClick={handleExpandAll} className="flex items-center gap-2 bg-primary  dark:bg-pinkGradient">
+            <Button variant="outline" onClick={handleExpandAll} className="flex items-center gap-2 bg-primary  dark:bg-pinkGradient text-white">
               {expandAll ? "Collapse All" : "Expand All"}
               <ChevronDown className={`h-4 w-4 transition-transform ${expandAll ? "rotate-180" : ""}`} />
             </Button>

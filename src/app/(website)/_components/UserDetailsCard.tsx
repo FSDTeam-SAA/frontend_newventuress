@@ -27,10 +27,11 @@ const UserDetailsCard = ({ user }: any) => {
 
           <div className="flex items-center gap-2 text-sm md:text-base">
             <span>
-              {profession
-                .map((e:any) => e.charAt(0).toUpperCase() + e.slice(1))
+              {(profession ?? []) // If profession is null/undefined, use an empty array
+                .map((e: any) => e.charAt(0).toUpperCase() + e.slice(1))
                 .join(', ')}
             </span>
+
           </div>
 
 

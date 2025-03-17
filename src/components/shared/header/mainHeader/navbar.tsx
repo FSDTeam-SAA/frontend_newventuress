@@ -33,8 +33,10 @@ function Navbar({ loggedin }: Props) {
           {/* <MobileTabletNavbar loggedin={loggedin} /> */}
         </div>
         <div className="hidden lg:block">
-          <DesktopNavbar pathName={pathName} loggedin={loggedin} />
-          {/* {pathName === "/" ? <DesktopNavbar pathName={pathName} loggedin={loggedin} /> : null} */}
+          {/* <DesktopNavbar pathName={pathName} loggedin={loggedin} /> */}
+          {!["/login", "/registration"].includes(pathName) && (
+            <DesktopNavbar pathName={pathName} loggedin={loggedin} />
+          )}
         </div>
       </header>
     // </Hideon>

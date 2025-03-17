@@ -92,7 +92,7 @@ export const authRoutes = [
  * @type {string[]}
  */
 
-export const publicRoutes = ["/", "/age-alert", "/blogs", "/about", "/contact", "/term-and-conditions", "/privacyPolicy", "/faq"];
+export const publicRoutes = ["/", "/age-alert", "/blogs", "/about", "/contact", "/term-and-conditions", "/privacy-policy", "/faq"];
 
 /**
  * An array of routes that are used for authentication
