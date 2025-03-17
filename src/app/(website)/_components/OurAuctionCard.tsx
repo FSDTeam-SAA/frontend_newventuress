@@ -21,8 +21,8 @@ interface Auction {
     shortDescription?: string;
     productType?: string;
     startingPrice?: number; // Changed to optional
-    startingTime: string;
-    endingTime: Date;
+    startingDateAndTime: string;
+    endingDateAndTime: Date;
     sku: string;
     stockQuantity: number;
     tags?: string[];
@@ -42,7 +42,7 @@ export default function OurAuctionCard({ auction, index }: Props) {
     setIsWishlist((prev) => !prev);
   };
 
-  const endDate = new Date(auction.endingTime);
+  const endDate = new Date(auction.endingDateAndTime);
   const isExpired = new Date() > endDate;
   console.log("isExpired", isExpired);
   console.log('endDate', endDate);

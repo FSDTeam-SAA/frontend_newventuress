@@ -170,11 +170,11 @@ function DesktopNavbar({ pathName, loggedin }: DesktopNavbarProps) {
                 variant="outline"
                 size="md"
                 className="dark:bg-white dark:hover:bg-[#482D721A] dark:text-black dark:border dark:border-[#6741a521] dark:shadow"
-                disabled
+                
               >
                 <Link href="/login">Log in</Link>
               </Button>
-              <Button size="md" disabled>
+              <Button size="md" >
                 <Link href="/registration">Sign up</Link>
               </Button>
             </div>
