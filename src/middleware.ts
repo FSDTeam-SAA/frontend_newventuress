@@ -12,6 +12,7 @@ export default auth((req) => {
   const isLoggedin = !!req.auth;
 
 //  // Allow access only to the homepage ("/")
+ // Allow access only to the homepage ("/")
 //  if (nextUrl.pathname === "/") {
 //   return NextResponse.next();
 // }

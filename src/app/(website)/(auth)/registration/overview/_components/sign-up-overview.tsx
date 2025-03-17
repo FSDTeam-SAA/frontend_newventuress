@@ -39,7 +39,7 @@ const SignUpOverview = () => {
       if (data.status) {
         // success mesage
         toast.success(
-          "Your account has been created, and you're all set to log in. Welcome aboard! 🚀",
+          "Your account is under review. Please check your email for further details.",
           {
             position: "top-right",
             richColors: true,
@@ -154,7 +154,7 @@ const SignUpOverview = () => {
       useEffect(() => {
         if (!businessName || !email || !fullName || experiences.length === 0) {
           dispatch(resetAuthSlice());
-          redirect("/registration")
+          redirect("/")
         };
 
         
@@ -219,7 +219,7 @@ const SignUpOverview = () => {
           setIsModalOpen(false);
           setLoading(true)
           dispatch(resetAuthSlice())
-          router.push("/login")
+          router.push("/")
           
         }}
       /></>
