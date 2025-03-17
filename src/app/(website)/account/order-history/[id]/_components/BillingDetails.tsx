@@ -4,7 +4,7 @@ import { OrderSummary } from "./OrderSummary";
 import { AddressInfo, OrderDetails } from "./types";
 
 const addressInfo: AddressInfo = {
-  name: "Cameron Williamson",
+  name: "Abu Sayed From Rangpur",
   address: "4517 Washington Ave. Manchester, Kentucky 39495",
   email: "georgia.young@example.com",
   phone: "(+33)7 75 55 65 33",

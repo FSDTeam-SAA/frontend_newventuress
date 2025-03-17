@@ -26,7 +26,7 @@ const AuctionHeader: React.FC<AuctionHeaderProps> = ({
       </div>
       <div className="flex gap-4">
         <Button onClick={() => setShowAddAuction((prev) => !prev)}>
-          {showAddAuction ? "Adding Auction" : "Add New Auction"}
+          {showAddAuction ? "All Auctions" : "Add New Auction"}
         </Button>
       <Button onClick={() => setShowBids(true)}> 
             Bids Settings <Settings /> 
