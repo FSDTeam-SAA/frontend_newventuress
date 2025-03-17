@@ -65,7 +65,7 @@ const OrderForm: React.FC = () => {
   const cartItems = useAppSelector((state) => state.cart.items)
 
   const calculateTotals = () => {
-    const subtotal = cartItems.reduce((sum, item) => sum + item.discountPrice * item.quantity, 0)
+    const subtotal = cartItems.reduce((sum, item) => sum + item.regularPrice * item.quantity, 0)
     const shipping = subtotal > 0 ? 100 : 0
     const tax = subtotal * 0.01
     const total = subtotal + shipping + tax

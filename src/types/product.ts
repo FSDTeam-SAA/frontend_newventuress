@@ -12,7 +12,7 @@ export interface Product {
     subCateogry: string;
     purchasedPrice: number;
     selllingPrice: number;
-    discountPrice: number;
+    regularPrice: number;
     startingPrice: number;
     size: string;
     quantity: string;

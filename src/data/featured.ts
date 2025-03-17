@@ -16,7 +16,7 @@ export type FeatureCardType = {
   subCateogry: string; // Subcategory ID of the product.
   purchasedPrice: number; // Purchased price of the product.
   selllingPrice: number; // Selling price of the product.
-  discountPrice: number; // Discount price of the product.
+  regularPrice: number; // Discount price of the product.
   size: string; // Size/quantity descriptor, e.g., "30ml".
   quantity: string; // Number of items available.
   sku: string; // Stock Keeping Unit identifier.

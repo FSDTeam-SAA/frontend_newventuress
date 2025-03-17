@@ -16,7 +16,7 @@ export interface AllProductDataType {
   subCategory: string;
   purchasedPrice: number;
   sellingPrice: number;
-  discountPrice: number;
+  regularPrice: number;
   size: string;
   quantity: string;
   sku: string; 

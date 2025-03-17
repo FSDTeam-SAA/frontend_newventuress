@@ -171,7 +171,7 @@ export default function LoginForm() {
                       term of service
                     </Link>{" "}
                     and{" "}
-                    <Link href="/privacyPolicy" className="text-gradient dark:text-gradient-pink">
+                    <Link href="/privacy-policy" className="text-gradient dark:text-gradient-pink">
                       privacy policy
                     </Link>
                   </label>

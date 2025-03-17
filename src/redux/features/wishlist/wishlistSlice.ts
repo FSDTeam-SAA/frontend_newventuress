@@ -4,7 +4,7 @@ export interface WishlistItem {
   _id: string;
   title: string;
   image: string;
-  discountPrice: number;
+  regularPrice: number;
   sellingPrice: number;
   stockStatus: string;
 }

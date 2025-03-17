@@ -9,7 +9,7 @@ import { addToCart } from "@/redux/features/cart/cartSlice";
 interface WishlistItem {
   _id: string;
   title: string;
-  discountPrice: number;
+  regularPrice: number;
   sellingPrice: number;
   stockStatus: string;
   image: string;
@@ -37,7 +37,7 @@ export function WishlistCard({ item }: CartItemProps) {
         _id: item._id,
         title: item.title,
         image: item.image,
-        discountPrice: item.discountPrice,
+        regularPrice: item.regularPrice,
         sellingPrice: item.sellingPrice,
         stockStatus: item.stockStatus,
       }));
@@ -48,7 +48,7 @@ export function WishlistCard({ item }: CartItemProps) {
     dispatch(addToCart({
       _id: item._id,
       title: item.title,
-      discountPrice: item.discountPrice,
+      regularPrice: item.regularPrice,
       sellingPrice: item.sellingPrice,
       stockStatus: item.stockStatus,
       image: item.image,
@@ -98,7 +98,7 @@ export function WishlistCard({ item }: CartItemProps) {
           <div className="flex items-end justify-between pt-[4px]">
             <div className="flex items-center gap-2">
               <div className="text-base leading-[19px] font-medium text-[#1A1A1A]">
-                ${item.discountPrice.toLocaleString()}
+                ${item.regularPrice.toLocaleString()}
               </div>
               <div className="text-sm font-medium leading-[14px] text-[#9C9C9C] line-through">
                 ${item.sellingPrice.toLocaleString()}

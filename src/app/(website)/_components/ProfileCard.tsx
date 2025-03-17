@@ -11,7 +11,7 @@ interface ProfileCardProps {
   onEdit?: () => void
 }
 
-export function ProfileCard({ user, onEdit }: ProfileCardProps) {
+export function ProfileCard({ onEdit }: ProfileCardProps) {
   const { data: session } = useSession()
   if (!session) return null
   console.log(session);
@@ -19,8 +19,8 @@ export function ProfileCard({ user, onEdit }: ProfileCardProps) {
     <Card className="w-full lg:w-[370px] h-[248px] shadow-none mb-[20px] border-[#C5C5C5] border-[1px]">
       <CardContent className="flex flex-col items-center gap-1 pt-6">
         <Avatar className="w-24 h-24">
-          <AvatarImage src={user.avatarUrl} alt={session.user.fullName} />
-          <AvatarFallback>{session.user.fullName.charAt(0)}</AvatarFallback>
+          <AvatarImage src={""} alt={session.user.fullName} />
+          <AvatarFallback className="text-2xl">{session.user.fullName.charAt(0)}</AvatarFallback>
         </Avatar>
         <div className="text-center">
           <h2 className="text-[20px] text-[#000000] font-medium">{session.user.fullName}</h2>

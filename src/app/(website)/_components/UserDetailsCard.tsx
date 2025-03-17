@@ -8,7 +8,7 @@ import { useRouter } from "next/navigation";
 // }
 const UserDetailsCard = ({ user }: any) => {
   const router = useRouter();
-  const {  profession, email, phone, dob } = user;
+  const {  profession, email, industry } = user;
   // const fullAddress = `${address.street}, ${address.city}, ${address.state} ${address.zip}`;
 
   return (
@@ -25,31 +25,43 @@ const UserDetailsCard = ({ user }: any) => {
           <div className="grid grid-cols-[100px_1fr] md:grid-cols-[140px_1fr] items-center gap-2 ">
             <div className="font-medium text-[16px]">Profession</div>
 
-            <div className="flex items-center gap-2 text-sm md:text-base">
-              <span>:{profession[0]}</span>
-            </div>
+          <div className="flex items-center gap-2 text-sm md:text-base">
+            <span>
+              {profession
+                .map((e:any) => e.charAt(0).toUpperCase() + e.slice(1))
+                .join(', ')}
+            </span>
           </div>
 
-          <div className="grid grid-cols-[100px_1fr] md:grid-cols-[140px_1fr] items-center gap-2">
+
+          </div>
+
+          {/* <div className="grid grid-cols-[100px_1fr] md:grid-cols-[140px_1fr] items-center gap-2">
             <div className="font-medium text-[16px]">DOB</div>
             <div className="flex items-center gap-2 text-sm md:text-base">
               <span>:{dob}</span>
             </div>
-          </div>
+          </div> */}
 
           <div className="grid grid-cols-[100px_1fr] md:grid-cols-[140px_1fr] items-center gap-2">
             <div className="font-medium text-[16px]">Email</div>
             <div className="flex items-center gap-2 text-sm md:text-base">
-              <span>:{email}</span>
+              <span>{email}</span>
             </div>
           </div>
 
-          <div className="grid grid-cols-[100px_1fr] md:grid-cols-[140px_1fr] items-center gap-2">
+          {/* <div className="grid grid-cols-[100px_1fr] md:grid-cols-[140px_1fr] items-center gap-2">
             <div className="font-medium text-[16px]">Phone</div>
             <div className="flex items-center gap-2 text-sm md:text-base">
               <span>:{phone}</span>
             </div>
-          </div>
+          </div> */}
+           <div className="grid grid-cols-[100px_1fr] md:grid-cols-[140px_1fr] items-center gap-2">
+            <div className="font-medium text-[16px]">Industry</div>
+            <div className="flex items-center gap-2 text-sm md:text-base">
+              <span>{industry.join(', ')}</span>
+            </div>
+          </div> 
         </div>
 
         <button
