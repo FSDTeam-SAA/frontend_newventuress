@@ -1,16 +1,16 @@
-import Hideon from "@/provider/Hideon";
+// import Hideon from "@/provider/Hideon";
 import { Instagram, Twitter, Youtube } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
 // Define routes where the footer should be hidden
-const HIDE_ROUTES = [
-  "/age-alert",
-  "/vendor-dashboard",
-  "/login",
-  "/registration",
-  "/forgot-password",
-];
+// const HIDE_ROUTES = [
+//   "/age-alert",
+//   "/vendor-dashboard",
+//   "/login",
+//   "/registration",
+//   "/forgot-password",
+// ];
 
 // Define an array of links for the footer
 const footerLinks = [
@@ -37,7 +37,7 @@ const footerLinks = [
 
 const Footer = () => {
   return (
-    <Hideon routes={HIDE_ROUTES}>
+    // <Hideon routes={HIDE_ROUTES}>
       <footer className="bg-[#101218] text-white pt-12 lg:pt-20 pb-12">
         <div className="container mx-auto px-4">
           {/* Footer Content Layout */}
@@ -68,14 +68,14 @@ const Footer = () => {
                       {title}
                     </h3>
                     <ul className="space-y-2">
-                      {links.map(({ label }) => (
+                      {links.map(({ label,href }) => (
                         <li key={label}>
-                          <p
-                            // href={href}
-                            className="text-[#E6EEF6] text-[14px] font-normal hover:text-white transition-colors cursor-not-allowed"
+                          <Link
+                            href={href}
+                            className="text-[#E6EEF6] text-[14px] font-normal hover:text-white transition-colors "
                           >
                             {label}
-                          </p>
+                          </Link>
                         </li>
                       ))}
                     </ul>
@@ -107,16 +107,15 @@ const Footer = () => {
             </div> */}
 
             {/* Footer Bottom Text */}
-            {/* <div className="lg:col-end-5 lg:col-span-3 col-span-4 text-[#D9D9D9] text-[10px] lg:text-[14px] text-center lg:text-start mt-2 lg:mt-8">
+            <div className="lg:col-end-5 lg:col-span-3 col-span-4 text-[#D9D9D9] text-[10px] lg:text-[14px] text-center lg:text-start mt-2 lg:mt-8">
               <p>
-                2024 WWW Staging - Thailand - Pacific Rim Fusion, LLC. Powered
-                by WWW Staging - Thailand - Pacific Rim Fusion, LLC
+                Copyright 2025 Pacific Rim Fusion © - All Rights Reserved
               </p>
-            </div> */}
+            </div>
           </div>
         </div>
       </footer>
-    </Hideon>
+    // </Hideon>
   );
 };
 

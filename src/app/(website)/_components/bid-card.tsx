@@ -21,7 +21,7 @@ const AuctionCountDownTimer = dynamic(
 export default function BiddingCard({ product }: { product: Product }) {
 
   
-  const endDate = new Date(product.endingTime);
+  const endDate = new Date(product?.endingDateAndTime);
   const isExpired = new Date() > endDate;
 
   return (
@@ -54,7 +54,7 @@ export default function BiddingCard({ product }: { product: Product }) {
               className="h-[16px] w-[16px] fill-[#FF8A00] text-[#FF8A00]"
             />
           ))}
-          <Rating productId={product._id} />
+          <Rating productId={product?._id} />
           <Star className="h-[16px] w-[16px] fill-[#CCCCCC] text-[#CCCCCC]" />
         </div>
         {/* <div className="flex items-center justify-center text-[16px] font-normal leading-[19.2px] text-[#E10E0E]">

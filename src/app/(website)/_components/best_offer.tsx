@@ -1,4 +1,4 @@
-import { Button } from "@/components/ui/button";
+// import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import React from "react";
 import { FaArrowRightLong } from "react-icons/fa6";
@@ -93,12 +93,12 @@ const BestOffer: React.FC = () => {
           </div>
         ))}
       </div>
-      <div className="w-full flex items-center justify-between  pt-[25px] md:pt-[33px] lg:pt-[41px]">
-        <div className="">
+      <div className="w-full flex items-center justify-end  pt-[25px] md:pt-[33px] lg:pt-[41px]">
+        {/* <div className="">
           <Button> 
             <Link href="/cart">Shop Now</Link>
           </Button>
-        </div>
+        </div> */}
 
         <button className="group flex items-center text-gradient dark:text-gradient-pink gap-[14px]">
           <Link href="/products">See All</Link>

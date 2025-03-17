@@ -16,8 +16,8 @@ export interface Product {
     startingPrice: number;
     size: string;
     quantity: string;
-    startingTime: string;
-    endingTime: Date;
+    startingDateAndTime: string;
+    endingDateAndTime: Date;
 
     stockQuantity: number;
     sku: string;

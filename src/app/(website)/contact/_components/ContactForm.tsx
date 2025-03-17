@@ -1,87 +1,91 @@
 "use client";
 
-// package import 
+// Package imports 
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-
-// local import
-
-import { Form, FormControl, FormField, FormItem, FormMessage } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Button } from "@/components/ui/button";
+import { useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
 
+// Local imports
+import { Form, FormControl, FormField, FormItem, FormMessage } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/components/ui/button";
+
 // Define Zod schema for validation
 const formSchema = z.object({
-  name: z.string().min(1, "Name is required"),
+  fullName: z.string().min(1, "Name is required"),
   email: z.string().email("Invalid email address"),
   subject: z.string().optional(),
-  message: z.string().min(1, "Queries is required"),
+  message: z.string().min(1, "Message is required"),
 });
 
 type FormValues = z.infer<typeof formSchema>;
 
 const ContactForm: React.FC = () => {
-
   const session = useSession();
   const token = session.data?.user.token;
   const email = session.data?.user.email;
   const fullName = session.data?.user.fullName;
 
-  const {mutate} = useMutation<any, unknown, FormData>({
-    mutationKey : ["contact"],
-    mutationFn : (formData)=> fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/contact`,{
-      method : "POST",
-      headers : {
-        Authorization : `Bearer ${token}`
-      },
-      body : formData
-    })
-    .then ((res)=> res.json()),
-
-    onSuccess : (formData) =>{
-      if(!formData.status){
-        toast.error(formData.message, {
-          position : "top-right",
-          richColors : true
-        })
-        return ;
-      }
-      form.reset();
-    toast.success(formData.message, {
-      position : "top-right",
-      richColors : true
-    })
-    }
-
-    
-    
-  })
-
   const form = useForm<FormValues>({
-    resolver: zodResolver(formSchema), // Use Zod resolver for validation
+    resolver: zodResolver(formSchema),
     defaultValues: {
-      name: fullName || "",
-      email: email || "",
+      fullName: "",
+      email: "",
       subject: "",
       message: "",
     },
   });
 
+  useEffect(() => {
+    form.setValue("fullName", fullName || "");
+    form.setValue("email", email || "");
+  }, [fullName, email, form]);
+
+  const { mutate } = useMutation<any, unknown, FormData>({
+    mutationKey: ["contact"],
+   mutationFn: async (formData) => {
+  if (!token) {
+    toast.error("Authentication error. Please log in again.");
+    return;
+  }
+  try {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/contact`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(Object.fromEntries(formData)),
+    });
+    return await res.json();
+  } catch (error:any) {
+    throw new Error("Something went wrong. Please try again.", error);
+  }
+},
+
+
+    onSuccess: (data) => {
+      if (!data.status) {
+        toast.error(data.message, { position: "top-right", richColors: true });
+        return;
+      }
+      form.reset();
+      toast.success(data.message, { position: "top-right", richColors: true });
+    },
+  });
+
   const onSubmit = (data: FormValues) => {
     const formData = new FormData();
-    formData.append("name", data.name);
+    formData.append("fullName", data.fullName);
     formData.append("email", data.email);
-    formData.append("subject", JSON.stringify(data.subject));
-    formData.append("message", data.message)
+    formData.append("subject", data.subject || "");
+    formData.append("message", data.message);
     mutate(formData);
-    
-    // Optionally reset the form
-    form.reset();
   };
 
   return (
@@ -90,88 +94,50 @@ const ContactForm: React.FC = () => {
         <h1 className="text-[25px] lg:text-[32px] font-semibold leading-[38.4px] text-gradient max-md:max-w-full dark:text-gradient-pink">
           We are Here to Help!
         </h1>
-        <div >
-          <p className="text-[16px] leading-[19.2px] text-[#444444] max-md:max-w-full">For inquiries, partnerships, or additional information about how
-          Pacific Rim Fusion can help your local business, please reach out
-          through our support channel..
-          <br />
-          <br />
-          Together, we can build a more equitable and prosperous cannabis
-          industry.</p>
-        </div>
+        <p className="text-[16px] leading-[19.2px] text-[#444444] max-md:max-w-full">
+          For inquiries, partnerships, or additional information, please reach out through our support channel.
+        </p>
       </div>
 
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col flex-1 w-full  max-md:max-w-full">
-          {/* Name Field */}
-          <FormField
-            control={form.control}
-            name="name"
-            render={({ field }) => (
-              <FormItem>
-                <FormControl>
-                  <Input placeholder="Full Name*" {...field} className="w-full h-[51px] p-[16px] text-black text-[16px] bg-white border-[#0057A8] dark:border dark:border-[#6841A5] rounded-md placeholder:text-[16px] placeholder:text-[#444444] focus-visible:ring-0 focus-visible:ring-offset-0 dark:!text-[#000000]"/>
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+        <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col flex-1 w-full max-md:max-w-full space-y-2">
+          <FormField control={form.control} name="fullName" render={({ field }) => (
+            <FormItem>
+              <FormControl>
+                <Input placeholder="Full Name*" {...field} className="w-full h-[51px] p-[16px] text-black text-[16px] bg-white border-[#0057A8] dark:border dark:border-[#6841A5] rounded-md placeholder:text-[16px] placeholder:text-[#444444] focus-visible:ring-0 focus-visible:ring-offset-0 dark:!text-[#000000]" />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )} />
 
-          {/* Email Field */}
-          <div className="mt-4">
-            <FormField
-              control={form.control}
-              name="email"
-              render={({ field }) => (
-                <FormItem>
-                  <FormControl>
-                    <Input placeholder="Email Address*" {...field} className="w-full h-[51px] p-[16px]text-black text-[16px] bg-white dark:border dark:border-[#6841A5] border-[#0057A8] rounded-md placeholder:text-[16px] placeholder:text-[#444444] focus-visible:ring-0 focus-visible:ring-offset-0 dark:!text-[#000000]"/>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
+          <FormField control={form.control} name="email" render={({ field }) => (
+            <FormItem>
+              <FormControl>
+                <Input required placeholder="Email Address*" {...field} className="w-full h-[51px] p-[16px]text-black text-[16px] bg-white dark:border dark:border-[#6841A5] border-[#0057A8] rounded-md placeholder:text-[16px] placeholder:text-[#444444] focus-visible:ring-0 focus-visible:ring-offset-0 dark:!text-[#000000]" />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )} />
 
-          {/* Subject Field */}
-          <div className="mt-4">
-            <FormField
-              control={form.control}
-              name="subject"
-              render={({ field }) => (
-                <FormItem>
-                  <FormControl>
-                    <Input placeholder="Subject" {...field} className="w-full h-[51px] p-[16px]text-black dark:border dark:border-[#6841A5] text-[16px] bg-white border-[#0057A8] rounded-md placeholder:text-[16px] placeholder:text-[#444444] focus-visible:ring-0 focus-visible:ring-offset-0 dark:!text-[#000000]"/>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
+          <FormField control={form.control} name="subject" render={({ field }) => (
+            <FormItem>
+              <FormControl>
+                <Input required placeholder="Subject" {...field} className="w-full h-[51px] p-[16px]text-black dark:border dark:border-[#6841A5] text-[16px] bg-white border-[#0057A8] rounded-md placeholder:text-[16px] placeholder:text-[#444444] focus-visible:ring-0 focus-visible:ring-offset-0 dark:!text-[#000000]" />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )} />
 
-          {/* Message Field */}
-          <div className="mt-4">
-            <FormField
-              control={form.control}
-              name="message"
-              render={({ field }) => (
-                <FormItem>
-                  <FormControl>
-                    <Textarea placeholder="Ask your Queries*" {...field} className="w-full p-[16px]text-black dark:border dark:border-[#6841A5] text-[16px] bg-white border-[#0057A8] rounded-md placeholder:text-[16px] placeholder:text-[#444444] h-[170px] focus-visible:ring-0 focus-visible:ring-offset-0 dark:!text-[#000000]"/>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
+          <FormField control={form.control} name="message" render={({ field }) => (
+            <FormItem>
+              <FormControl>
+                <Textarea required placeholder="Ask your Queries*" {...field} className="w-full p-[16px]text-black dark:border dark:border-[#6841A5] text-[16px] bg-white border-[#0057A8] rounded-md placeholder:text-[16px] placeholder:text-[#444444] h-[170px] focus-visible:ring-0 focus-visible:ring-offset-0 dark:!text-[#000000]" />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )} />
 
-          {/* Submit Button */}
-          <Button
-            type="submit"
-            className="self-center max-w-full font-semibold whitespace-nowrap mt-[16px]  rounded-lg min-h-[56px] w-[198px] max-md:px-5 transition-colors duration-200"
-          >
-            Submit
-          </Button>
+          <Button type="submit" className="submit-btn">Submit</Button>
         </form>
       </Form>
     </div>
