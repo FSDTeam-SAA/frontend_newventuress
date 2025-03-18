@@ -8,7 +8,7 @@ import { useRouter } from "next/navigation";
 // }
 const UserDetailsCard = ({ user }: any) => {
   const router = useRouter();
-  const {  profession, email, industry } = user;
+  const {  profession, email, industry } = user || {};
   // const fullAddress = `${address.street}, ${address.city}, ${address.state} ${address.zip}`;
 
   return (
@@ -61,7 +61,8 @@ const UserDetailsCard = ({ user }: any) => {
            <div className="grid grid-cols-[100px_1fr] md:grid-cols-[140px_1fr] items-center gap-2">
             <div className="font-medium text-[16px]">Industry</div>
             <div className="flex items-center gap-2 text-sm md:text-base">
-              <span>{industry.join(', ')}</span>
+             <span>{Array.isArray(industry) && industry.length > 0 ? industry.join(', ') : "No industry"}</span>
+
             </div>
           </div> 
         </div>
