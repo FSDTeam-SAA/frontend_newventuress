@@ -32,7 +32,7 @@ export default function EditDialog() {
                 <DialogHeader>
                     <DialogTitle className="dark:text-black">Edit Your Information</DialogTitle>
                     <DialogDescription>
-                        Make changes to your information here. Click save when you&apos;re done.
+                         Click save when you&apos;re done.
                     </DialogDescription>
                 </DialogHeader>
                 <EditRegistrationForm toggle={closeModal} />
