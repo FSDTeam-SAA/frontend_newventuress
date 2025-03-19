@@ -11,7 +11,7 @@ export const productFormSchema = z.object({
   subCategory: z.string().min(1, "Sub-category is required"),
   purchasedPrice: z.string().min(1, "Purchase price is required"),
   selllingPrice: z.string().min(1, "Selling price is required"),
-  discountPrice: z.string().optional(),
+  regularPrice: z.string().optional(),
   size: z.string(),
   quantity: z.string(),
   sku: z.string(),

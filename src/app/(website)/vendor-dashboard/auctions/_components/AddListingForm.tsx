@@ -34,6 +34,8 @@ const formSchema = z.object({
   coa: z.boolean().default(false),
   photos: z.array(z.any()).optional(),
   coaCertificate: z.any().optional(),
+  buyIndividually: z.boolean().default(false),
+  productPolicy: z.string().optional(),
 })
 
 interface Props {
@@ -69,6 +71,8 @@ function AddListingForm({ setShowAddAuction }: Props) {
       coa: false,
       photos: [],
       coaCertificate: null,
+      buyIndividually: false,
+      productPolicy: "",
     },
   })
 
@@ -257,6 +261,8 @@ function AddListingForm({ setShowAddAuction }: Props) {
     }
 
     formData.append("coa", data.coa.toString())
+    formData.append("soldMark", data.buyIndividually.toString())
+    formData.append("productPolicy", data.productPolicy || "")
 
     if (images.length > 0) {
       images.forEach((image) => {
@@ -282,7 +288,7 @@ function AddListingForm({ setShowAddAuction }: Props) {
             "bg-primary dark:bg-pinkGradient px-4 py-3 mb- rounded-t-3xl text-white text-[32px] leading-[38px] font-semibold h-[78px] flex items-center"
           }
         >
-          Add Auction Product
+          Add Regular Listing
         </div>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)}>
@@ -450,7 +456,7 @@ function AddListingForm({ setShowAddAuction }: Props) {
                       render={({ field }) => (
                         <FormItem className="flex flex-col">
                           <FormLabel className="leading-[19.2px] text-[#444444] text-[16px] font-normal">
-                            Regular Price<span className="text-red-500">*</span>
+                            Price<span className="text-red-500">*</span>
                           </FormLabel>
                           <div className="flex justify-between mt-2 w-full whitespace-nowrap rounded-md border border-solid border-[#B0B0B0] h-[51px]">
                             <div className="gap-3 self-stretch px-4 dark:!text-[#6841A5] text-sm font-semibold leading-tight text-[#0057A8] dark:bg-[#482D721A] bg-gray-200 rounded-l-lg h-[49px] w-[42px] flex items-center justify-center">
@@ -478,7 +484,7 @@ function AddListingForm({ setShowAddAuction }: Props) {
                       render={({ field }) => (
                         <FormItem className="flex flex-col">
                           <FormLabel className="leading-[19.2px] text-[#444444] text-[16px] font-normal">
-                            Sell Price
+                            Sale Price
                           </FormLabel>
                           <div className="flex justify-between mt-2 w-full whitespace-nowrap rounded-md border border-solid border-[#B0B0B0] h-[51px]">
                             <div className="gap-3 self-stretch px-4 dark:!text-[#6841A5] text-sm font-semibold leading-tight text-[#0057A8] dark:bg-[#482D721A] bg-gray-200 rounded-l-lg h-[49px] w-[42px] flex items-center justify-center">
@@ -576,63 +582,33 @@ function AddListingForm({ setShowAddAuction }: Props) {
                   </div>
                 ) : null}
                 <div>
-                <h3>Select country:</h3>
-                <div className="grid grid-cols-12 gap-4">
-                  <div className="col-span-6">
-                    <FormField
-                      control={form.control}
-                      name="country"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="leading-[19.2px] text-[#444444] text-[16px] font-normal">
-                            Country<span className="text-red-500">*</span>
-                          </FormLabel>
-                          <Select
-                            onValueChange={(value) => {
-                              field.onChange(value)
-                              setSelectedCountry(value)
-                            }}
-                            value={field.value}
-                          >
-                            <FormControl>
-                              <SelectTrigger className="h-[51px] border-[#9C9C9C] dark:!text-black">
-                                <SelectValue placeholder="Select Country" />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              {countries.map((country) => (
-                                <SelectItem key={country} value={country}>
-                                  {country}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-
-                  <div className="col-span-6">
-                    {(selectedCountry === "United States" || selectedCountry === "Canada") && (
+                  <h3>Select country:</h3>
+                  <div className="grid grid-cols-12 gap-4">
+                    <div className="col-span-6">
                       <FormField
                         control={form.control}
-                        name="state"
+                        name="country"
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel className="leading-[19.2px] text-[#444444] text-[16px] font-normal">
-                              State<span className="text-red-500">*</span>
+                              Country<span className="text-red-500">*</span>
                             </FormLabel>
-                            <Select onValueChange={field.onChange} value={field.value}>
+                            <Select
+                              onValueChange={(value) => {
+                                field.onChange(value)
+                                setSelectedCountry(value)
+                              }}
+                              value={field.value}
+                            >
                               <FormControl>
                                 <SelectTrigger className="h-[51px] border-[#9C9C9C] dark:!text-black">
-                                  <SelectValue placeholder="Select State" />
+                                  <SelectValue placeholder="Select Country" />
                                 </SelectTrigger>
                               </FormControl>
                               <SelectContent>
-                                {states.map((state) => (
-                                  <SelectItem key={state} value={state}>
-                                    {state}
+                                {countries.map((country) => (
+                                  <SelectItem key={country} value={country}>
+                                    {country}
                                   </SelectItem>
                                 ))}
                               </SelectContent>
@@ -641,10 +617,39 @@ function AddListingForm({ setShowAddAuction }: Props) {
                           </FormItem>
                         )}
                       />
-                    )}
-                  </div>
-                </div>
+                    </div>
 
+                    <div className="col-span-6">
+                      {(selectedCountry === "United States" || selectedCountry === "Canada") && (
+                        <FormField
+                          control={form.control}
+                          name="state"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="leading-[19.2px] text-[#444444] text-[16px] font-normal">
+                                State<span className="text-red-500">*</span>
+                              </FormLabel>
+                              <Select onValueChange={field.onChange} value={field.value}>
+                                <FormControl>
+                                  <SelectTrigger className="h-[51px] border-[#9C9C9C] dark:!text-black">
+                                    <SelectValue placeholder="Select State" />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                  {states.map((state) => (
+                                    <SelectItem key={state} value={state}>
+                                      {state}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      )}
+                    </div>
+                  </div>
                 </div>
 
                 <div className="mt-3">
@@ -686,6 +691,46 @@ function AddListingForm({ setShowAddAuction }: Props) {
                     />
                   </div>
                 )}
+                {/* Add Buy Individually checkbox */}
+                <FormField
+                  control={form.control}
+                  name="buyIndividually"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-start space-x-3 space-y-0 mt-4">
+                      <FormControl>
+                        <Checkbox checked={field.value} onCheckedChange={field.onChange} />
+                      </FormControl>
+                      <div className="space-y-1 leading-none">
+                        <FormLabel className="text-sm font-normal text-[#444444]">Option to Buy Individually</FormLabel>
+                        <p className="text-xs text-muted-foreground">
+                          Allow customers to purchase a single product at a time
+                        </p>
+                      </div>
+                    </FormItem>
+                  )}
+                />
+
+                {/* Add Product Policy textarea */}
+                <FormField
+                  control={form.control}
+                  name="productPolicy"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="leading-[19.2px] text-[#9C9C9C] text-[16px] font-medium">
+                        Product Policy
+                      </FormLabel>
+                      <FormControl>
+                        <Textarea
+                          placeholder="Enter detailed product policies here"
+                          className="py-3 resize-none border-[#9E9E9E] dark:!text-black"
+                          rows={3}
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
               </div>
               <div className="w-[600px] h-full mt-[16px] border border-[#B0B0B0] rounded-lg">
                 <ProductGallery onImageChange={handleImageChange} />

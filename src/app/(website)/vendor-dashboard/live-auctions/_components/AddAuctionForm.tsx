@@ -40,6 +40,10 @@ const formSchema = z.object({
   hasCOA: z.boolean().default(false),
   images: z.array(z.any()).optional(),
   coaImage: z.any().optional(),
+  auctionType: z.string().min(1, "Auction type is required"),
+  productCondition: z.string().min(1, "Product condition is required"),
+  bidIncrement: z.string().min(1, "Bid increment is required"),
+  productPolicy: z.string().optional(),
 })
 
 const AddAuctionForm: React.FC = () => {
@@ -69,7 +73,7 @@ const AddAuctionForm: React.FC = () => {
       category: "",
       subCategory: "",
       openingPrice: "",
-      reservePrice: "",
+      reservePrice: "", 
       buyNowPrice: "",
       startingDateAndTime: new Date(),
       endingDateAndTime: new Date(),
@@ -84,6 +88,10 @@ const AddAuctionForm: React.FC = () => {
       hasCOA: false,
       images: [],
       coaImage: null,
+      auctionType: "",
+      productCondition: "",
+      bidIncrement: "",
+      productPolicy: "",
     },
   })
 
@@ -276,6 +284,11 @@ const AddAuctionForm: React.FC = () => {
       formData.append("coaImage", coaImage)
     }
 
+    formData.append("auctionType", data.auctionType)
+    formData.append("productCondition", data.productCondition)
+    formData.append("bidIncreament", data.bidIncrement)
+    formData.append("productPolicy", data.productPolicy || "")
+
     console.log(data)
     mutate(formData)
   }
@@ -294,6 +307,29 @@ const AddAuctionForm: React.FC = () => {
           <form onSubmit={form.handleSubmit(onSubmit)}>
             <div className="flex gap-4">
               <div className="w-[58%] space-y-[16px] mt-[16px]">
+                <FormField
+                  control={form.control}
+                  name="auctionType"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="leading-[19.2px] text-[#444444] text-[16px] font-normal">
+                        Auction Type<span className="text-red-500">*</span>
+                      </FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value}>
+                        <FormControl>
+                          <SelectTrigger className="h-[51px] border-[#9C9C9C] dark:!text-black">
+                            <SelectValue placeholder="Select Auction Type" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="normal">Normal</SelectItem>
+                          <SelectItem value="reverse">Reverse</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
                 <FormField
                   control={form.control}
                   name="title"
@@ -352,6 +388,30 @@ const AddAuctionForm: React.FC = () => {
                           {...field}
                         />
                       </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                <FormField
+                  control={form.control}
+                  name="productCondition"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="leading-[19.2px] text-[#444444] text-[16px] font-normal">
+                        Product Condition<span className="text-red-500">*</span>
+                      </FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value}>
+                        <FormControl>
+                          <SelectTrigger className="h-[51px] border-[#9C9C9C] dark:!text-black">
+                            <SelectValue placeholder="Select Product Condition" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="new">New</SelectItem>
+                          <SelectItem value="used">Used</SelectItem>
+                        </SelectContent>
+                      </Select>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -533,6 +593,31 @@ const AddAuctionForm: React.FC = () => {
                     />
                   </div>
                 </div>
+                     <FormField
+                  control={form.control}
+                  name="bidIncrement"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-col">
+                      <FormLabel className="leading-[19.2px] text-[#444444] text-[16px] font-normal">
+                        Bid Increment<span className="text-red-500">*</span>
+                      </FormLabel>
+                      <div className="flex justify-between mt-2 w-full whitespace-nowrap rounded-md border border-solid border-[#B0B0B0] h-[51px]">
+                        <div className="gap-3 self-stretch px-4 dark:!text-[#6841A5] text-sm font-semibold leading-tight text-[#0057A8] dark:bg-[#482D721A] bg-gray-200 rounded-l-lg h-[49px] w-[42px] flex items-center justify-center">
+                          $
+                        </div>
+                        <FormControl>
+                          <Input
+                            placeholder="0.00"
+                            type="number"
+                            className="flex-1 shrink gap-2 self-stretch py-3 pr-5 pl-4 my-auto text-base leading-snug rounded-lg min-w-[100px] border-none h-[50px] dark:!text-black"
+                            {...field}
+                          />
+                        </FormControl>
+                      </div>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
                 <div className="grid grid-cols-12 gap-4">
                   <div className="col-span-6 w-auto">
@@ -667,63 +752,33 @@ const AddAuctionForm: React.FC = () => {
 
                 {/* Add country and state fields here */}
                 <div>
-                <h3>Select Country:</h3>
-                <div className="grid grid-cols-12 gap-4">
-                  <div className="col-span-6">
-                    <FormField
-                      control={form.control}
-                      name="country"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="leading-[19.2px] text-[#444444] text-[16px] font-normal">
-                            Country<span className="text-red-500">*</span>
-                          </FormLabel>
-                          <Select
-                            onValueChange={(value) => {
-                              field.onChange(value)
-                              setSelectedCountry(value)
-                            }}
-                            value={field.value}
-                          >
-                            <FormControl>
-                              <SelectTrigger className="h-[51px] border-[#9C9C9C] dark:!text-black">
-                                <SelectValue placeholder="Select Country" />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              {countries.map((country) => (
-                                <SelectItem key={country} value={country}>
-                                  {country}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-
-                  <div className="col-span-6">
-                    {(selectedCountry === "United States" || selectedCountry === "Canada") && (
+                  <h3>Select Country:</h3>
+                  <div className="grid grid-cols-12 gap-4">
+                    <div className="col-span-6">
                       <FormField
                         control={form.control}
-                        name="state"
+                        name="country"
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel className="leading-[19.2px] text-[#444444] text-[16px] font-normal">
-                              State<span className="text-red-500">*</span>
+                              Country<span className="text-red-500">*</span>
                             </FormLabel>
-                            <Select onValueChange={field.onChange} value={field.value}>
+                            <Select
+                              onValueChange={(value) => {
+                                field.onChange(value)
+                                setSelectedCountry(value)
+                              }}
+                              value={field.value}
+                            >
                               <FormControl>
                                 <SelectTrigger className="h-[51px] border-[#9C9C9C] dark:!text-black">
-                                  <SelectValue placeholder="Select State" />
+                                  <SelectValue placeholder="Select Country" />
                                 </SelectTrigger>
                               </FormControl>
                               <SelectContent>
-                                {states.map((state) => (
-                                  <SelectItem key={state} value={state}>
-                                    {state}
+                                {countries.map((country) => (
+                                  <SelectItem key={country} value={country}>
+                                    {country}
                                   </SelectItem>
                                 ))}
                               </SelectContent>
@@ -732,12 +787,40 @@ const AddAuctionForm: React.FC = () => {
                           </FormItem>
                         )}
                       />
-                    )}
+                    </div>
+
+                    <div className="col-span-6">
+                      {(selectedCountry === "United States" || selectedCountry === "Canada") && (
+                        <FormField
+                          control={form.control}
+                          name="state"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="leading-[19.2px] text-[#444444] text-[16px] font-normal">
+                                State<span className="text-red-500">*</span>
+                              </FormLabel>
+                              <Select onValueChange={field.onChange} value={field.value}>
+                                <FormControl>
+                                  <SelectTrigger className="h-[51px] border-[#9C9C9C] dark:!text-black">
+                                    <SelectValue placeholder="Select State" />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                  {states.map((state) => (
+                                    <SelectItem key={state} value={state}>
+                                      {state}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      )}
+                    </div>
                   </div>
                 </div>
-
-                </div>
-
 
                 <div className="mt-3">
                   <InputWithTags placeholder="Add Tags" limit={10} tags={tags} setTags={setTags} />
@@ -826,6 +909,32 @@ const AddAuctionForm: React.FC = () => {
                     )}
                   />
                 )}
+
+                
+
+
+           
+
+                <FormField
+                  control={form.control}
+                  name="productPolicy"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="leading-[19.2px] text-[#9C9C9C] text-[16px] font-medium">
+                        Product Policy
+                      </FormLabel>
+                      <FormControl>
+                        <Textarea
+                          placeholder="Type Product Policy Here"
+                          className="py-3 resize-none border-[#9E9E9E] dark:!text-black"
+                          rows={3}
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
               </div>
               <div className="w-[600px] h-full mt-[16px] border border-[#B0B0B0] rounded-lg">
                 <ProductGallery onImageChange={handleImageChange} />

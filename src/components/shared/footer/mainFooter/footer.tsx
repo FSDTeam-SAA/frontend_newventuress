@@ -19,7 +19,7 @@ const footerLinks = [
     links: [
       { label: "About Us", href: "/about" },
       { label: "Contact", href: "/contact" },
-      { label: "Privacy Policy", href: "/privacyPolicy" },
+      { label: "Privacy Policy", href: "/privacy-policy" },
       { label: "Terms and Conditions", href: "/term-and-conditions" },
       { label: "FAQs", href: "/faq" },
     ],

@@ -34,7 +34,7 @@ const formSchema = z.object({
 })
 
 export default function ProfileSettingsForm() {
-  const [image, setImage] = useState<string>("/assets/img/profile.png")
+  const [image, setImage] = useState<string>("https://images.pexels.com/photos/28216688/pexels-photo-28216688/free-photo-of-autumn-camping.png?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1")
   const router = useRouter()
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),

@@ -4,11 +4,7 @@ import { usePathname } from "next/navigation";
 
 // Local imports
 import { cn } from "@/lib/utils";
-// import Hideon from "@/provider/Hideon";
 import DesktopNavbar from "./DesktopNavbar";
-// const MobileTabletNavbar = dynamic(() => import("./MobileTabletNavbar"), {
-//   ssr: false,
-// });
 
 interface Props {
   loggedin: boolean;
@@ -17,27 +13,20 @@ interface Props {
 function Navbar({ loggedin }: Props) {
   const pathName = usePathname();
 
+  // Hide navbar on /registration and its subroutes, and /vendor-dashboard and its subroutes
+  const shouldHideNavbar =
+    pathName.startsWith("/registration") || pathName.startsWith("/vendor-dashboard") || pathName === "/login";
+
   return (
-    // <Hideon
-    //   routes={[
-    //     "/age-alert",
-    //     "/vendor-dashboard",
-    //     "/login",
-    //     "/registration",
-    //     "/reset-password",
-    //     "/forgot-password",
-    //   ]}
-    // >
-      <header className={cn("bg-white", pathName !== "/" && "")}>
-        <div className="lg:hidden">
-          {/* <MobileTabletNavbar loggedin={loggedin} /> */}
-        </div>
-        <div className="hidden lg:block">
-          <DesktopNavbar pathName={pathName} loggedin={loggedin} />
-          {/* {pathName === "/" ? <DesktopNavbar pathName={pathName} loggedin={loggedin} /> : null} */}
-        </div>
-      </header>
-    // </Hideon>
+    
+    <header className={cn("bg-white", pathName !== "/" && "")}>
+      <div className="lg:hidden">
+        {/* Mobile & Tablet Navbar can be added here if needed */}
+      </div>
+      <div className="hidden lg:block">
+        {!shouldHideNavbar && <DesktopNavbar pathName={pathName} loggedin={loggedin} />}
+      </div>
+    </header>
   );
 }
 

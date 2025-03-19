@@ -11,7 +11,7 @@ export interface OurAuctionProduct {
     subCateogry: string;
     purchasedPrice: number;
     selllingPrice: number;
-    discountPrice: number;
+    regularPrice: number;
     size: string;
     quantity: string;
     sku: string;

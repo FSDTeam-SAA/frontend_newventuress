@@ -168,11 +168,11 @@ export default function LoginForm() {
                   >
                     I agree with the{" "}
                     <Link href="/term-and-conditions" className="text-gradient dark:text-gradient-pink">
-                      term of service
+                      Terms of Condition
                     </Link>{" "}
                     and{" "}
-                    <Link href="/privacyPolicy" className="text-gradient dark:text-gradient-pink">
-                      privacy policy
+                    <Link href="/privacy-policy" className="text-gradient dark:text-gradient-pink">
+                      Privacy Policy
                     </Link>
                   </label>
                 </div>

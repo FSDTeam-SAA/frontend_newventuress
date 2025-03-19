@@ -6,12 +6,12 @@ export interface User {
 }
 
 export interface UserProfile {
-  address: {
-    street: string
-    city: string
-    state: string
-    zip: string
-  }
+  // address: {
+  //   street: string
+  //   city: string
+  //   state: string
+  //   zip: string
+  // }
   profession: string
   dob: string
   email: string

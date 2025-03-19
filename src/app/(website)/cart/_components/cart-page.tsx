@@ -30,7 +30,7 @@ console.log('Cart Item ',cartItems)
 
   const calculateTotals = () => {
     const subtotal = cartItems.reduce(
-      (sum, item) => sum + item.discountPrice * item.quantity,
+      (sum, item) => sum + item.regularPrice * item.quantity,
       0
     );
     const shipping = subtotal > 0 ? 100 : 0;
