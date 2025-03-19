@@ -38,13 +38,13 @@ const SignUpOverview = () => {
     
       if (data.status) {
         // success mesage
-        toast.success(
-          "Your account is under review. Please check your email for further details.",
-          {
-            position: "top-right",
-            richColors: true,
-          }
-        );
+        // toast.success(
+        //   "Your account is under review. Please check your email for further details.",
+        //   {
+        //     position: "top-right",
+        //     richColors: true,
+        //   }
+        // );
 
         setState("pending")
 

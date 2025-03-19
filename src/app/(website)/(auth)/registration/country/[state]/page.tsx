@@ -22,7 +22,7 @@ const Page = ({ params }: { params: { state: string } }) => {
     <AuthUIProvider
       sidebarImage="https://i.postimg.cc/QCCySSfp/image-9.png"
       fullWidth
-      backButton={false}
+      // backButton={false}
     >
       <ProvienceSelector
         countries={decodeUrl.split("_").filter((item) => item === "United States" || item === "Canada")}

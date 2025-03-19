@@ -1,6 +1,6 @@
 // locatl  import ==================
 
-import AboutSection from "@/components/shared/sections/about-section";
+// import AboutSection from "@/components/shared/sections/about-section";
 // import MarketingLandingPage from "@/components/marketingLandingPage/MarketingLandingPage";
 // import DealOfTheDay from "./_components/deal_of_the_day";
 import Hero from "@/components/hero/Hero";
@@ -27,9 +27,9 @@ const Page = async () => {
         <Hero />
         <PopularCategories loggedin={loggedin} token={token} />
         {/* {!loggedin && <DealOfTheDay />} */}
-        {!loggedin && (
+        {/* {!loggedin && (
           <AboutSection image="https://utfs.io/f/HkyicnKv4pLkKb11IfnzkrEA5LwVvWx2Fbfe7a6P94u0gcjZ" />
-        )}
+        )} */}
         {!loggedin && (
           <div className="pb-[80px]">
             <FAQSection />

@@ -64,7 +64,7 @@ export default function OurAuctionCard({ auction, index }: Props) {
         <Link href={`/auction/${auction._id}`}>
           <Image
             loading="lazy"
-            src={auction?.images?.[0]}
+            src={auction?.images?.[0] || "https://images.pexels.com/photos/28216688/pexels-photo-28216688/free-photo-of-autumn-camping.png?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"}
             alt={auction?.title}
             fill
             className="object-cover z-0 rounded-[8px] aspect-[1.07] hover:scale-105 duration-300"
@@ -108,7 +108,7 @@ export default function OurAuctionCard({ auction, index }: Props) {
           </div>
           <div className="flex gap-1 items-end self-start mt-2 font-medium leading-tight">
             <div className="self-stretch text-base text-[16px] leading-[19.2px] text-[#1A1A1A]">
-              ${auction.startingPrice}
+              ${auction.startingPrice || 0}
             </div>
           </div>
         </div>
