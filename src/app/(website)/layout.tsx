@@ -15,6 +15,10 @@ import Navbar from "@/components/shared/header/mainHeader/navbar";
 import { cn } from "@/lib/utils";
 import { ThemeProvider } from "@/provider/theme-provider";
 import { Toaster } from "sonner";
+import SearchBerCategories from "@/components/shared/searchBerCategories/searchBerCategories";
+import AgeRestrictionGuard from "@/components/providers/AgeRestrictionGuard";
+// import CrispProvider from "@/components/providers/crisp-provider";
+import { ChatBot } from "@/components/chatbot/chat-bot";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -44,10 +48,9 @@ export default async function RootLayout({
               <Navbar loggedin={!!session} />
             </div>
             <div>
-            {/* <SearchBerCategories /> */}
+            <SearchBerCategories />
             </div>
-            {/* <AgeRestrictionGuard>{children}</AgeRestrictionGuard> */}
-            {children}
+            <AgeRestrictionGuard>{children}</AgeRestrictionGuard>
 
             <div>
               <NewsletterPage />
@@ -57,7 +60,7 @@ export default async function RootLayout({
             <Toaster />
             </ThemeProvider>
             {/* <CrispProvider /> */}
-            {/* <ChatBot/> */}
+            <ChatBot/>
           </body>
         </html>
       </AppProvider>
