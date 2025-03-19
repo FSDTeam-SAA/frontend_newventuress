@@ -31,6 +31,7 @@ import {
 } from "react-hook-form"
 import * as z from "zod"
 import { professions } from "../../(a)/experiences/profession/_components/profession-checker"
+import { useRouter } from "next/navigation"
 
 const formSchema = z.object({
   businessName: z.string(),
@@ -104,6 +105,7 @@ export default function EditRegistrationForm({toggle}: Props) {
 
    toggle()
   }
+  const router = useRouter()
 
   return (
     <Form {...form}>
@@ -221,6 +223,7 @@ export default function EditRegistrationForm({toggle}: Props) {
               )}
             />
         <Button type="submit" size="sm">Save</Button>
+        <Button type="button" size="sm" onClick={()=>(router.push('/registration/experiences'))}>Edit Industry</Button>
       </form>
     </Form>
   )
