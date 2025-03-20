@@ -1,60 +1,75 @@
-// import { useQuery } from "@tanstack/react-query";
-'use client'
-import { useSession } from "next-auth/react";
-import UserDetailsCard from "./UserDetailsCard"
-export interface userDetails {
-  _id: string;
-  email: string;
+"use client";
+
+import { useSession, getSession } from "next-auth/react";
+import { useEffect, useState } from "react";
+import UserDetailsCard from "./UserDetailsCard";
+
+interface User {
   fullName: string;
   industry: string[];
   profession: string[];
-  role: string;
-  updatedAt: Date;
-  __v: number;
+  dob: string;
+  email: string;
+  phone: string;
 }
-
-
 
 const UserDetailsInfo = () => {
-  // Get user session
-  const session = useSession();
-  // console.log(session)
- 
-  const sampleUser = {
-    // address: {
-    //   street: session.data?.user.address.street,
-    //   city: session.data?.user.address.city,
-    //   state: "",
-    //   zip: ""
-    // },
-    fullName: session.data?.user.fullName,
-    industry: session.data?.user.industry,
-    profession: session.data?.user.profession,
-    dob: "N/A",
-    email: session.data?.user.email,
-    phone: "N/A",
-  }
-  // Fetch FAQs using React Query
-  // const { isLoading, data, isError, error } = useQuery<userDetails[]>({
-  //   queryKey: ["faqs"], // Unique key for caching
-  //   queryFn: async () => {
-  //     const response = await fetch(
-  //       `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/user/all`
-  //     );
-  //     if (!response.ok) {
-  //       throw new Error("Failed to fetch FAQs"); // Throw error if response is not OK
-  //     }
-  //     const resData = await response.json();
-  //     return resData.data; // Return the data from the API
-  //   },
-  // });
-  return (
-    <div>
-      <div className="   flex items-start justify-center">
-        <UserDetailsCard user={sampleUser} />
-      </div>
-    </div>
-  )
-}
+  const { data: session, status } = useSession();
+  const [user, setUser] = useState<User | null>(null);
 
-export default UserDetailsInfo
+  // Force session update after first render
+  useEffect(() => {
+    const fetchSession = async () => {
+      const updatedSession = await getSession();
+      if (updatedSession?.user) {
+        setUser({
+          fullName: updatedSession.user.fullName || "N/A",
+          industry: Array.isArray(updatedSession.user.industry)
+            ? updatedSession.user.industry
+            : [updatedSession.user.industry || "N/A"],
+          profession: updatedSession.user.profession || ["N/A"],
+          dob: "N/A",
+          email: updatedSession.user.email || "N/A",
+          phone: "N/A",
+        });
+      }
+    };
+
+    if (!session?.user) {
+      fetchSession();
+    } else {
+      setUser({
+        fullName: session.user.fullName || "N/A",
+        industry: Array.isArray(session.user.industry)
+          ? session.user.industry
+          : [session.user.industry || "N/A"],
+        profession: session.user.profession || ["N/A"],
+        dob: "N/A",
+        email: session.user.email || "N/A",
+        phone: "N/A",
+      });
+    }
+  }, [session]);
+
+  // Show loading message while session is being fetched
+  if (status === "loading") {
+    return <p className="text-center text-gray-500">Loading user details...</p>;
+  }
+
+  // Ensure we don't show an error too soon
+  if (status === "unauthenticated" || !user) {
+    return (
+      <p className="text-center text-red-500">
+        Error: Unable to fetch user details. Please log in.
+      </p>
+    );
+  }
+
+  return (
+    <div className="flex justify-center">
+      <UserDetailsCard user={user} />
+    </div>
+  );
+};
+
+export default UserDetailsInfo;

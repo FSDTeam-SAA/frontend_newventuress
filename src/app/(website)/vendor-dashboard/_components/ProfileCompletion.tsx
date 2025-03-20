@@ -13,7 +13,7 @@ interface ProfileData {
 export default function ProfileCompletion() {
   const [profileData, setProfileData] = useState<ProfileData>({
     completionPercentage: 0,
-    domain: "www.staging-Thailand-Pasific fuision"
+    domain: "Pacific Rim Fuision"
   })
 
   // Simulate loading profile data
@@ -22,7 +22,7 @@ export default function ProfileCompletion() {
     const loadProfileData = () => {
       setProfileData({
         completionPercentage: 70,
-        domain: "www.staging-Thailand-Pasific fuision"
+        domain: "Pacific Rim Fuision"
       })
     }
 
