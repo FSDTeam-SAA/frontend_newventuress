@@ -10,27 +10,26 @@ import {
 export default auth((req) => {
   const { nextUrl } = req;
   const isLoggedin = !!req.auth;
+  const pathname = nextUrl.pathname;
 
-//  // Allow access only to the homepage ("/")
- // Allow access only to the homepage ("/")
-//  if (nextUrl.pathname === "/") {
-//   return NextResponse.next();
-// }
-
-// // Redirect all other pages back to the home page
-// return NextResponse.redirect(new URL("/", nextUrl));
-
-
-
-  const isApiAuthRoute = nextUrl.pathname.startsWith(apiAuthPrefix);
-  const isPublicRoutes = publicRoutes.includes(nextUrl.pathname);
+  const isApiAuthRoute = pathname.startsWith(apiAuthPrefix);
+  
+  // Check if the current path matches any public route pattern
+  const isPublicRoute = publicRoutes.some(route => {
+    // Handle wildcard routes like "/blogs/*"
+    if (route.endsWith('/*')) {
+      const baseRoute = route.slice(0, -2); // Remove the "/*"
+      return pathname === baseRoute || pathname.startsWith(`${baseRoute}/`);
+    }
+    return pathname === route;
+  });
 
   // Check if any `authRoute` is a prefix of the current path
   const isAuthRoute = authRoutes.some((route) =>
-    nextUrl.pathname.startsWith(route)
+    pathname.startsWith(route)
   );
 
-  if (isApiAuthRoute || isPublicRoutes) {
+  if (isApiAuthRoute || isPublicRoute) {
     return NextResponse.next();
   }
 
@@ -42,13 +41,12 @@ export default auth((req) => {
     }
   }
 
-  if (!isLoggedin && !isPublicRoutes) {
+  if (!isLoggedin && !isPublicRoute) {
     return Response.redirect(new URL("/login", nextUrl));
   }
 
   return NextResponse.next();
 });
-
 
 // Optionally, don't invoke Middleware on some paths
 export const config = {

@@ -83,16 +83,13 @@ export const authRoutes = [
   ...countryRoutes, // Add dynamically generated country routes
 ];
 
-
-
-
 /**
  * An array of routes that are accesible to the public
  * These routes do not require authentication
  * @type {string[]}
  */
 
-export const publicRoutes = ["/", "/age-alert", "/blogs", "/about", "/contact", "/term-and-conditions", "/privacy-policy", "/faq"];
+export const publicRoutes = ["/", "/age-alert", "/blogs","/blogs/*", "/about", "/contact", "/term-and-conditions", "/privacy-policy", "/faq"];
 
 /**
  * An array of routes that are used for authentication
