@@ -166,13 +166,15 @@ function AddListingForm({ setShowAddAuction }: Props) {
   const { data: subCategoriesData, refetch: refetchSubCategories } = useQuery({
     queryKey: ["subcategories", selectedCategory],
     queryFn: () =>
-      fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/subcategories/${selectedCategory}`, {
+      fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/subcategories/by-category/${selectedCategory}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       }).then((res) => res.json()),
     enabled: !!selectedCategory && !!token,
   })
+  console.log("cat subcat", categories, subCategories)
+  console.log("selected cat", selectedCategory)
 
   useEffect(() => {
     if (categoriesData?.data) {
@@ -427,7 +429,7 @@ function AddListingForm({ setShowAddAuction }: Props) {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className="leading-[19.2px] text-[#444444] text-[16px] font-normal">
-                        Sub Category
+                        Sub Category<span className="text-red-500">*</span>
                       </FormLabel>
                       <Select onValueChange={field.onChange} value={field.value} disabled={!selectedCategory}>
                         <FormControl>
@@ -627,7 +629,7 @@ function AddListingForm({ setShowAddAuction }: Props) {
                           render={({ field }) => (
                             <FormItem>
                               <FormLabel className="leading-[19.2px] text-[#444444] text-[16px] font-normal">
-                                State<span className="text-red-500">*</span>
+                                State/Province<span className="text-red-500">*</span>
                               </FormLabel>
                               <Select onValueChange={field.onChange} value={field.value}>
                                 <FormControl>
