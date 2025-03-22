@@ -118,7 +118,7 @@ console.log(imageError);
   }
 
   // Get user data from session
-  const userName = session?.user?.name || "Vendor"
+  const userName = session?.user?.fullName || "Vendor"
   const userImage = session?.user?.image
   const userEmail = session?.user?.email
 

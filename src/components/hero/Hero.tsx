@@ -62,7 +62,7 @@ const Hero = () => {
         >
           <div className="absolute inset-0 bg-black opacity-50"></div>
           <div className="relative container flex items-center justify-start h-full text-white">
-            {as === "HEMP/CBD" && <div className="md:w-[670px]">
+            {as === "HEMP/CBD" && <div className="md:w-[685px]">
               {as == "HEMP/CBD" && (
                 <h1 className="text-[32px] leading-[38.4px] lg:text-[56px] lg:leading-[67.2px] font-semibold mb-4 ">
                 SHARE THE <br />
@@ -70,24 +70,19 @@ const Hero = () => {
               </h1>
               )}
               <p className="text-[16px] md:text-[18px] mb-8">
-                SHRED is here to make your weed experience easier. It all
-                started with three great flavor pre-milled blends. Since then,
-                SHRED has expanded to include gummies, vapes, infused pre-rolls,
-                and even hash!
+                
+              We connect buyers, sellers and distributors across Canada, Colombia, Germany, United Kingdom Luxembourg, Mexico, Spain, Thailand, U.S. and more in a global free-for-all. Hustle or get left behind. Cannabis? Yeah, we do that too.
               </p>
             </div>}
 
-           {as === "RECREATIONAL" &&  <div className="md:w-[670px]">
+           {as === "RECREATIONAL" &&  <div className="md:w-[685px]">
   
   <h1 className="text-[32px] leading-[38.4px] lg:text-[56px] lg:leading-[67.2px] font-semibold mb-4">
     EMBRACE <br />
     WELLNESS
   </h1>
 <p className="text-[16px] md:text-[18px] mb-8">
-  Discover a world of natural relief with our premium CBD and hemp products.  
-  Crafted for balance and well-being, our selection includes oils, edibles,  
-  topicals, and more—designed to fit seamlessly into your lifestyle.  
-  Experience nature’s best, redefined.
+We connect buyers, sellers and distributors across Canada, Colombia, Germany, United Kingdom Luxembourg, Mexico, Spain, Thailand, U.S. and more in a global free-for-all. Hustle or get left behind. Cannabis? Yeah, we do that too.
 </p>
 </div>}
 

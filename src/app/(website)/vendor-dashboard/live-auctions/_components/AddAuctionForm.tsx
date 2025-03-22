@@ -175,7 +175,7 @@ const AddAuctionForm: React.FC = () => {
   const { data: subCategoriesData, refetch: refetchSubCategories } = useQuery({
     queryKey: ["subcategories", selectedCategory],
     queryFn: () =>
-      fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/subcategories/${selectedCategory}`, {
+      fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/subcategories/by-category/${selectedCategory}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -487,7 +487,11 @@ const AddAuctionForm: React.FC = () => {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className="leading-[19.2px] text-[#444444] text-[16px] font-normal">
+<<<<<<< HEAD
                         Sub Category *
+=======
+                        Sub Category<span className="text-red-500">*</span>
+>>>>>>> b4aad28529dd8a862dc906d4c6d64c2b9e1090ec
                       </FormLabel>
                       <Select onValueChange={field.onChange} value={field.value} disabled={!selectedCategory}>
                         <FormControl>
@@ -797,7 +801,7 @@ const AddAuctionForm: React.FC = () => {
                           render={({ field }) => (
                             <FormItem>
                               <FormLabel className="leading-[19.2px] text-[#444444] text-[16px] font-normal">
-                                State<span className="text-red-500">*</span>
+                                State/Province<span className="text-red-500">*</span>
                               </FormLabel>
                               <Select onValueChange={field.onChange} value={field.value}>
                                 <FormControl>
