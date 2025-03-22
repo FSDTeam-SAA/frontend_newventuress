@@ -1,137 +1,133 @@
-"use client";
-import { Button } from "@/components/ui/button";
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuTrigger
-} from "@/components/ui/dropdown-menu";
-import { categoryDataResponse } from "@/data/categoryData";
-import { useQuery } from "@tanstack/react-query";
-import { AnimatePresence, motion } from "framer-motion";
-import { ChevronDown, Loader2 } from "lucide-react";
+"use client"
+import { Button } from "@/components/ui/button"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import { useQuery } from "@tanstack/react-query"
+import { AnimatePresence, motion } from "framer-motion"
+import { ChevronDown, Loader2 } from "lucide-react"
+import { useApplicationAs } from "@/hooks/useApplicationAs"
+import Link from "next/link"
+import { useState } from "react"
+import NotFound from "../NotFound/NotFound"
 
-import { useApplicationAs } from "@/hooks/useApplicationAs";
-import Link from "next/link";
-import { useState } from "react";
-import NotFound from "../NotFound/NotFound";
+// Define the type for the API response
+interface CategorySubcategoryResponse {
+  data: Record<string, string[]>
+}
 
 function Categories() {
-  const [category, setCategory] = useState("All Categories ");
-  const [isDropdownOpen, setDropdownOpen] = useState(false);
+  const [isDropdownOpen, setDropdownOpen] = useState(false)
+  const { as } = useApplicationAs()
 
-  const { as } = useApplicationAs();
+  // Get the industry parameter based on application type
+  const industry = as === "HEMP/CBD" ? "cbd" : "recreational"
 
-  const categoryParam = as === "HEMP/CBD" ? "industry=cbd" : "industry=recreational";
+  // Animation Variants for Dropdown
+  const dropdownVariants = {
+    hidden: { opacity: 0, scale: 0.95, y: -10 },
+    visible: { opacity: 1, scale: 1, y: 0 },
+    exit: { opacity: 0, scale: 0.95, y: -10 },
+  }
 
-  const linkVariants = {
+  // Animation Variants for Categories
+  const categoryVariants = {
     hidden: { opacity: 0, y: -20 },
     visible: { opacity: 1, y: 0 },
-    exit: { opacity: 0, y: -20 }
-  };
+    exit: { opacity: 0, y: -20 },
+  }
 
-  const { data, isLoading, isError } = useQuery<categoryDataResponse>({
-    queryKey: ["allcategory", categoryParam],
-    queryFn: async (): Promise<categoryDataResponse> =>
-      fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/categories?${categoryParam}`, {
+  // Fetch categories and subcategories
+  const { data, isLoading, isError } = useQuery<CategorySubcategoryResponse>({
+    queryKey: ["categorySubcategory", industry],
+    queryFn: async (): Promise<CategorySubcategoryResponse> =>
+      fetch(`http://localhost:8001/api/get/all/category-subcategory/${industry}`, {
         method: "GET",
+      }).then((res) => res.json() as Promise<CategorySubcategoryResponse>),
+  })
 
-      }).then((res) => res.json() as Promise<categoryDataResponse>),
-
-  });
-  // console.log("data", data);
-  let content;
+  let content
   if (isLoading) {
     content = (
       <div className="w-full h-[400px] flex justify-center items-center flex-col">
         <Loader2 className="animate-spin opacity-80" />
         <p>Loading your data...</p>
       </div>
-    );
-  } else if (isError) {
-    content = (
-      <NotFound message="No found your data" />
     )
-  } else if (data && data.data && data.data.length === 0) {
+  } else if (isError) {
+    content = <h1 className="text-2xl font-black bg-white p-3 text-center">No categories found!</h1>
+  } else if (!data || Object.keys(data.data).length === 0) {
     content = (
       <div className="mt-7">
-        <NotFound message="No found your data" />
+        <NotFound message="No data found" />
+      </div>
+    )
+  } else {
+    // Get all categories
+    const categories = Object.keys(data.data)
+
+    // Calculate how many categories to show per column (aim for 3-4 columns)
+    const categoriesPerColumn = Math.ceil(categories.length / 3)
+
+    // Split categories into columns
+    const columns = []
+    for (let i = 0; i < categories.length; i += categoriesPerColumn) {
+      columns.push(categories.slice(i, i + categoriesPerColumn))
+    }
+
+    content = (
+      <div className="bg-white p-6 rounded-lg shadow-sm w-full max-w-4xl">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          {columns.map((columnCategories, colIndex) => (
+            <div key={`column-${colIndex}`} className="space-y-6">
+              {columnCategories.map((category, catIndex) => (
+                <motion.div
+                  key={`${category}-${catIndex}`}
+                  variants={categoryVariants}
+                  initial="hidden"
+                  animate="visible"
+                  exit="exit"
+                  transition={{ duration: 0.2, delay: (colIndex * categoriesPerColumn + catIndex) * 0.05 }}
+                  className="space-y-2"
+                >
+                  <h3 className="font-bold text-lg">{category}</h3>
+                  <ul className="space-y-1">
+                    {data.data[category].map((subcategory, subIndex) => (
+                      <li key={`${subcategory}-${subIndex}`}>
+                        <Link
+                          href={`/category/${category.toLowerCase().replace(/\s+/g, "-")}/${subcategory.toLowerCase().replace(/\s+/g, "-")}`}
+                          className="text-gray-700 hover:text-primary hover:underline block py-1"
+                        >
+                          {subcategory}
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </motion.div>
+              ))}
+            </div>
+          ))}
+        </div>
+        <div className="mt-8 pt-4 border-t">
+          <Link href="/vendors" className="font-medium hover:underline">
+            List of All Store Vendors
+          </Link>
+        </div>
       </div>
     )
   }
-  else {
-    content = (
-
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <DropdownMenuContent
-          align="start"
-          className="w-[180px] rounded-lg p-0 font-medium leading-[24px] text-black mt-[10px] lg:mt-[10px] overflow-hidden bg-white dark:border-none"
-        >
-        {data?.data.map((item, index) =>
-          <motion.div
-            key={item.categoryName}
-            variants={linkVariants}
-            initial="hidden"
-            animate="visible"
-            exit="exit"
-            transition={{ duration: 0.2, delay: index * 0.05 }} // Stagger effect for links
-          >
-            <DropdownMenuItem
-              className="w-full p-0"
-              onClick={() => setCategory(item.categoryName)}
-            >
-              <Link
-                className="w-full text-[20px] p-4 hover:bg-[#E6EEF6] dark:hover:bg-[#482D721A]"
-                href={item.slug}
-              >
-                {item.categoryName}
-              </Link>
-            </DropdownMenuItem>
-          </motion.div>
-        )}
-        </DropdownMenuContent>
-      </div>
-
-    );
-  }
-
-
-  // const categories = [
-  //   { name: "Flower", link: "#" },
-  //   { name: "Topicals", link: "#" },
-  //   { name: "Apparel", link: "#" },
-  //   { name: "Concentrates", link: "#" },
-  //   { name: "Tinctures", link: "#" },
-  //   { name: "Accessories", link: "#" },
-  //   { name: "Vape Products", link: "#" },
-  //   { name: "Edibles", link: "#" }
-  // ];
-
-  // Animation Variants for Dropdown
-  const dropdownVariants = {
-    hidden: { opacity: 0, scale: 0.95, y: -10 },
-    visible: { opacity: 1, scale: 1, y: 0 },
-    exit: { opacity: 0, scale: 0.95, y: -10 }
-  };
-
-  // Animation Variants for Links
-
 
   return (
-    <DropdownMenu
-      onOpenChange={isOpen => setDropdownOpen(isOpen)} // Tracks dropdown open state
-    >
-      <DropdownMenuTrigger asChild className="">
+    <DropdownMenu onOpenChange={(isOpen) => setDropdownOpen(isOpen)}>
+      <DropdownMenuTrigger asChild>
         <Button
           variant="outline"
-          className="mb-2 lg:mb-0 w-[160px] lg:w-[178px] text-[14px] lg:text-[16px] h-[35px]  md:h-[44px] text-white hover:text-white gap-2 bg-primary dark:bg-pinkGradient dark:text-white focus:outline-none focus:ring-0 focus-visible:ring-0 focus-visible:ring-offset-0 dark:border-none"
+          className="mb-2 lg:mb-0 w-[160px] lg:w-[178px] text-[14px] lg:text-[16px] h-[35px] md:h-[44px] text-white hover:text-white gap-2 bg-primary dark:bg-pinkGradient dark:text-white focus:outline-none focus:ring-0 focus-visible:ring-0 focus-visible:ring-offset-0 dark:border-none"
         >
-          {category}
-          <ChevronDown className="h-4 " />
+          Shop By Category
+          <ChevronDown className="h-4" />
         </Button>
       </DropdownMenuTrigger>
       <AnimatePresence>
-        {isDropdownOpen &&
+        {isDropdownOpen && (
           <motion.div
             initial="hidden"
             animate="visible"
@@ -139,12 +135,19 @@ function Categories() {
             variants={dropdownVariants}
             transition={{ duration: 0.3, ease: "easeInOut" }}
           >
-            {content}
-          
-          </motion.div>}
+            <DropdownMenuContent
+              align="start"
+              className="w-auto rounded-lg p-0 font-medium leading-[24px] text-black mt-[10px] lg:mt-[10px] overflow-hidden bg-white dark:border-none"
+              style={{ width: "min(90vw, 800px)" }}
+            >
+              {content}
+            </DropdownMenuContent>
+          </motion.div>
+        )}
       </AnimatePresence>
     </DropdownMenu>
-  );
+  )
 }
 
-export default Categories;
+export default Categories
+
