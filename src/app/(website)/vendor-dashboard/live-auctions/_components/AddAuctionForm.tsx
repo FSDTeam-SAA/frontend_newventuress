@@ -487,7 +487,7 @@ const AddAuctionForm: React.FC = () => {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className="leading-[19.2px] text-[#444444] text-[16px] font-normal">
-                        Sub Category
+                        Sub Category *
                       </FormLabel>
                       <Select onValueChange={field.onChange} value={field.value} disabled={!selectedCategory}>
                         <FormControl>
