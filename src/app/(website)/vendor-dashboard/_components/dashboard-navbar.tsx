@@ -31,7 +31,7 @@ export const getCurrentTab = (pathName: string) => {
   } else if (pathName.includes("/vendor-dashboard/notifications")) {
     return { name: "Notifications", icon: null }
   }
-  return { name: "Admin Dashboard", icon: null } // Default tab
+  return { name: "Vendor Dashboard", icon: null } // Default tab
 }
 
 
