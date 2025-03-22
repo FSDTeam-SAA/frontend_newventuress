@@ -31,7 +31,7 @@ export const getCurrentTab = (pathName: string) => {
   } else if (pathName.includes("/vendor-dashboard/notifications")) {
     return { name: "Notifications", icon: null }
   }
-  return { name: "Dashboard", icon: null } // Default tab
+  return { name: "Admin Dashboard", icon: null } // Default tab
 }
 
 
@@ -140,7 +140,7 @@ console.log(imageError);
       {/* Vendor profile info with a dropdown logout button */}
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <div className="flex items-center gap-x-[10px] cursor-pointer">
+          <div className="flex items-center gap-x-[10px] cursor-pointer border p-2 rouonded-">
             <Avatar className="h-[44px] w-[44px]">
               <AvatarImage
                 src={userImage || ""}

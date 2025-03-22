@@ -1,8 +1,8 @@
 "use client"
 
-import { Button } from "@/components/ui/button"
+// import { Button } from "@/components/ui/button"
 import { Progress } from "@/components/ui/progress"
-import { ArrowRight } from 'lucide-react'
+// import { ArrowRight } from 'lucide-react'
 import { useState, useEffect } from "react"
 
 interface ProfileData {
@@ -30,7 +30,7 @@ export default function ProfileCompletion() {
   }, [])
 
   return (
-  <div className="w-full h-[173px] bg-white rounded-[12px] p-[24px] my-[30px]">
+  <div className="w-full bg-white rounded-[12px] p-[24px] my-[30px]">
       <div className="w-full max-w-2xl   space-y-2">
       <h1 className="text-[22px] font-semibold  text-gradient text-transparent dark:text-gradient-pink ">
         Welcome to the {profileData.domain}
@@ -47,13 +47,13 @@ export default function ProfileCompletion() {
       </div>
       </div>
 
-      <Button 
+      {/* <Button 
         className=" bg-primary hover:bg-blue-800 text-white w-fit"
         onClick={() => console.log("Navigating to profile...")}
       >
         Go To Customer Profile
         <ArrowRight className="ml-2 h-4 w-4" />
-      </Button>
+      </Button> */}
     </div>
   </div>
   )
