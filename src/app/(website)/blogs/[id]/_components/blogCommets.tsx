@@ -6,33 +6,59 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
-import { Loader2 } from "lucide-react";
+import { Loader2, RefreshCw } from "lucide-react";
 import { TextAnimate } from "@/components/magicui/text-animate";
 import ErrorContainer from "@/components/ui/error-container";
-import { useSession } from "next-auth/react";
-
+import { useSession, getSession } from "next-auth/react";
 
 function BlogComments() {
   const [commentText, setCommentText] = useState("");
   const { id: blogID } = useParams();
-  const session = useSession();
-  const usernameOrEmail = session.data?.user.email;
-  const fullName = session.data?.user.fullName;
- 
+  const { data: session, status } = useSession();
+  const [usernameOrEmail, setUsernameOrEmail] = useState("");
+  const [fullName, setFullName] = useState("");
+  const [autoRefresh, setAutoRefresh] = useState(true);
   
-
   const queryClient = useQueryClient();
 
- 
+  // Force session update on first render
+  useEffect(() => {
+    async function updateSession() {
+      const session = await getSession();
+      if (session?.user) {
+        setUsernameOrEmail(session.user.email || "");
+        setFullName(session.user.fullName || "");
+      }
+    }
+    
+    updateSession();
+  }, []);
+
+  // Update state when session changes through useSession hook
+  useEffect(() => {
+    if (session?.user) {
+      setUsernameOrEmail(session.user.email || "");
+      setFullName(session.user.fullName || "");
+    }
+  }, [session]);
+
+  // Force refetch comments when session status changes
+  useEffect(() => {
+    if (status === "authenticated" && blogID) {
+      queryClient.invalidateQueries({ queryKey: ["blog-comments", blogID] });
+    }
+  }, [status, blogID, queryClient]);
 
   // Fetch Blog Comments
   const {
     isLoading,
     data: comments,
     isError,
-    error
+    error,
+    refetch,
+    isFetching
   } = useQuery({
     queryKey: ["blog-comments", blogID],
     queryFn: async () => {
@@ -52,14 +78,14 @@ function BlogComments() {
       return response.json();
     },
     enabled: !!blogID,
+    refetchInterval: autoRefresh ? 5000 : false, // Refetch every 5 seconds when autoRefresh is true
+    refetchOnWindowFocus: true,
+    staleTime: 1000, // Consider data stale after 1 second
   });
 
   // Submit New Comment
   const mutation = useMutation<void, unknown, { blogID: string | string[]; fullName: string; usernameOrEmail: string; comments: string }>({
-
     mutationFn: async (newComment) => {
-      console.log(newComment);
-      
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/blog/user/comments`,
         {
@@ -87,12 +113,10 @@ function BlogComments() {
     usernameOrEmail: string;
     comments: string;
   }
- 
   
-
   const onSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (!commentText.trim()) return;
+    if (!commentText.trim() || !usernameOrEmail || !fullName) return;
 
     mutation.mutate({
       blogID,
@@ -100,6 +124,16 @@ function BlogComments() {
       usernameOrEmail,
       comments: commentText,
     } as NewComment);
+  };
+
+  // Manual refresh handler
+  const handleManualRefresh = () => {
+    refetch();
+  };
+
+  // Toggle auto-refresh
+  const toggleAutoRefresh = () => {
+    setAutoRefresh(prev => !prev);
   };
 
   // Render Comments
@@ -124,7 +158,7 @@ function BlogComments() {
     } else {
       content = <ErrorContainer message="Failed to load comments. Please try again!" />;
     }
-  } else if (comments?.data.length <= 0 ) {
+  } else if (!comments?.data || comments?.data.length <= 0) {
     content = (
       <div className="py-5 text-center">
         <TextAnimate animation="slideUp" by="word">
@@ -187,7 +221,11 @@ function BlogComments() {
           />
         </div>
         <div className="flex justify-center">
-          <Button type="submit" disabled={mutation.isPending} className="w-[285px] h-[56px]">
+          <Button 
+            type="submit" 
+            disabled={mutation.isPending || !usernameOrEmail || !fullName} 
+            className="w-[285px] h-[56px]"
+          >
             {mutation.isPending ? "Submitting..." : "Submit Comment"}
           </Button>
         </div>
@@ -195,7 +233,37 @@ function BlogComments() {
 
       {/* Comments Section */}
       <div className="py-4">
-        <div className="text-2xl font-medium leading-tight text-black">Comments</div>
+        <div className="flex items-center justify-between mb-4">
+          <div className="text-2xl font-medium leading-tight text-black">Comments</div>
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2">
+              <input 
+                type="checkbox" 
+                id="autoRefresh" 
+                checked={autoRefresh} 
+                onChange={toggleAutoRefresh} 
+                className="w-4 h-4 accent-black cursor-pointer"
+              />
+              <Label htmlFor="autoRefresh" className="text-sm cursor-pointer">Auto-refresh</Label>
+            </div>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={handleManualRefresh} 
+              disabled={isFetching}
+              className="flex items-center gap-1 h-8"
+            >
+              <RefreshCw className={`h-3 w-3 ${isFetching ? 'animate-spin' : ''}`} />
+              Refresh
+            </Button>
+          </div>
+        </div>
+        {isFetching && !isLoading && (
+          <div className="flex items-center justify-center py-2 text-sm text-gray-500">
+            <Loader2 className="animate-spin mr-2 h-3 w-3" />
+            Updating comments...
+          </div>
+        )}
         {content}
       </div>
     </div>
