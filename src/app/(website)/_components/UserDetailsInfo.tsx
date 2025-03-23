@@ -49,7 +49,7 @@ const UserDetailsInfo = () => {
         phone: "N/A",
       });
     }
-  }, [session]);
+  }, [session?.user]);
 
   // Show loading message while session is being fetched
   if (status === "loading") {
