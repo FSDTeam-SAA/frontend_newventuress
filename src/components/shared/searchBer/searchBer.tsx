@@ -29,7 +29,7 @@ interface LocationsResponse {
 // API function to fetch locations
 const fetchLocations = async (userId: string): Promise<LocationsResponse> => {
   try {
-    const response = await fetch(`http://localhost:8001/api/store/locations/${userId}`)
+    const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/store/locations/${userId}`)
 
     if (!response.ok) {
       throw new Error(`Failed to fetch locations: ${response.status}`)
