@@ -120,7 +120,7 @@ export default function SidebarFilters({ onFilterChange, priceRange }: SidebarFi
   return (
     <aside className="w-[270px] space-y-4 mt-[52px]">
       <div className="rounded-lg bg-[#E6EEF6] dark:bg-[#482D721A] p-4">
-      <h2 className="text-[28px] font-bold text-gradient dark:text-gradient-pink mb-4">Filter by Location</h2>
+      <h2 className="text-[28px] font-bold text-gradient dark:text-gradient-pink mb-4">My Store Location</h2>
       <div>
       <Select>
       <SelectTrigger className="w-full text-black">
