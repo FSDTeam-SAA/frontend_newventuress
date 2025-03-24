@@ -32,4 +32,5 @@ export interface Product {
     status: boolean;
     data?: Product[],
     message?: string
+    products: any[]
   }
