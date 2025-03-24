@@ -1,18 +1,18 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client"
 
 import type React from "react"
-
+import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Search } from "lucide-react"
-import { useSession } from "next-auth/react"
 import { useState, useEffect, useCallback, useRef } from "react"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { ChevronDown, MapPin, AlertCircle } from "lucide-react"
 import { useQuery } from "@tanstack/react-query"
 // import { toast } from "@/components/ui/use-toast"
 import { Alert, AlertDescription } from "@/components/ui/alert"
+import { useSearchStore } from "@/zustand/product/search-store"
+import { useUserId } from "@/hooks/use-user-id"
 
 // Type definitions for our data
 interface Location {
@@ -24,6 +24,11 @@ interface Location {
 interface LocationsResponse {
   status: boolean
   verifiedLocations: Location[]
+}
+
+interface ProductCountResponse {
+  status: boolean
+  productCount: Location[]
 }
 
 // API function to fetch locations
@@ -42,7 +47,26 @@ const fetchLocations = async (userId: string): Promise<LocationsResponse> => {
   }
 }
 
+// API function to fetch product counts by search query
+const fetchProductCounts = async (userId: string, query: string): Promise<ProductCountResponse> => {
+  try {
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/products/quantity/${userId}?query=${encodeURIComponent(query)}`,
+    )
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch product counts: ${response.status}`)
+    }
+
+    return await response.json()
+  } catch (error) {
+    console.error("Error fetching product counts:", error)
+    throw error
+  }
+}
+
 function SearchBar(): JSX.Element {
+  const router = useRouter()
   const [isSearchVisible, setIsSearchVisible] = useState<boolean>(false)
   const [selectedLocation, setSelectedLocation] = useState<string | null>(null)
   const [selectedLocationObject, setSelectedLocationObject] = useState<Location | null>(null)
@@ -51,13 +75,16 @@ function SearchBar(): JSX.Element {
   const [searchResults, setSearchResults] = useState<Location[]>([])
   const [isSearching, setIsSearching] = useState<boolean>(false)
 
+  // Get search store methods
+  const { setSearchQuery: setGlobalSearchQuery, setSelectedLocation: setGlobalSelectedLocation } = useSearchStore()
+
   // Refs for managing focus
   const searchInputRef = useRef<HTMLInputElement>(null)
   const dropdownTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 
-  // Get session data to extract user ID
-  const { data: session } = useSession()
-  const userId = session?.user?.id
+  // Get user ID
+  const { userId } = useUserId()
+  // Remove this line: const userId = session?.user?.id
 
   // Use Tanstack Query to fetch locations
   const {
@@ -76,13 +103,6 @@ function SearchBar(): JSX.Element {
     enabled: !!userId, // Only run query when userId is available
     staleTime: 5 * 60 * 1000, // Consider data fresh for 5 minutes
     retry: 2,
-    // onError: (error: Error) => {
-    //   toast({
-    //     title: "Error fetching locations",
-    //     description: error.message,
-    //     variant: "destructive",
-    //   })
-    // },
   })
 
   // Set default selected location when data is loaded
@@ -105,21 +125,10 @@ function SearchBar(): JSX.Element {
     }
   }, [])
 
-  // Function to generate dummy product counts for locations
-  const generateDummyProductCounts = useCallback((locations: Location[]): Location[] => {
-    if (!locations || locations.length === 0) return []
-
-    return locations.map((location) => ({
-      ...location,
-      // Generate random count between 10 and 1000
-      productCount: Math.floor(Math.random() * 990) + 10,
-    }))
-  }, [])
-
   // Function to handle search with location-specific product counts
   const handleSearch = useCallback(
-    (query: string): void => {
-      if (!query) {
+    async (query: string): Promise<void> => {
+      if (!query || !userId) {
         setSearchResults([])
         return
       }
@@ -127,10 +136,14 @@ function SearchBar(): JSX.Element {
       setIsSearching(true)
 
       try {
-        // Use the real locations from the API but add dummy product counts
-        const locationsWithCounts = generateDummyProductCounts(locationsData?.verifiedLocations || [])
+        // Fetch product counts from the API
+        const productCountsData = await fetchProductCounts(userId, query)
 
-        setSearchResults(locationsWithCounts)
+        if (productCountsData.status && productCountsData.productCount) {
+          setSearchResults(productCountsData.productCount)
+        } else {
+          setSearchResults([])
+        }
 
         // Delay opening the dropdown to prevent interrupting typing
         if (dropdownTimeoutRef.current) {
@@ -141,7 +154,9 @@ function SearchBar(): JSX.Element {
           setIsDropdownOpen(true)
         }, 300) // Small delay to allow typing to continue
       } catch (error) {
-        console.error("Error generating search results:", error)
+        console.error("Error fetching product counts:", error)
+        // Reset search results on error
+        setSearchResults([])
         // toast({
         //   title: "Error searching products",
         //   description: "Failed to search for products. Please try again.",
@@ -151,7 +166,7 @@ function SearchBar(): JSX.Element {
         setIsSearching(false)
       }
     },
-    [locationsData, generateDummyProductCounts],
+    [userId],
   )
 
   const toggleSearch = useCallback((): void => {
@@ -191,6 +206,22 @@ function SearchBar(): JSX.Element {
     [handleSearch],
   )
 
+  // Handle location click to view products
+  const handleViewProducts = useCallback(
+    (location: Location) => {
+      if (!userId || !searchQuery) return
+
+      // Save to global store
+      setGlobalSearchQuery(searchQuery)
+      setGlobalSelectedLocation(location)
+
+      // Navigate to products page with query parameters
+      // Don't encode the parameters here - Next.js router will handle it properly
+      router.push(`/products?country=${location.country}&state=${location.state}&query=${searchQuery}`)
+    },
+    [userId, searchQuery, router, setGlobalSearchQuery, setGlobalSelectedLocation],
+  )
+
   const handleSearchSubmit = useCallback(
     (e: React.FormEvent<HTMLFormElement>): void => {
       e.preventDefault()
@@ -205,11 +236,12 @@ function SearchBar(): JSX.Element {
         return
       }
 
-      // Proceed with search
-      console.log(`Searching for "${searchQuery}" in location: ${selectedLocation}`)
-      // Here you would typically navigate or perform the actual search
+      // If we have a selected location object, navigate to products page
+      if (selectedLocationObject && userId) {
+        handleViewProducts(selectedLocationObject)
+      }
     },
-    [searchQuery, selectedLocation],
+    [searchQuery, selectedLocation, selectedLocationObject, userId, handleViewProducts],
   )
 
   // Handle dropdown open/close without interfering with typing
@@ -230,7 +262,7 @@ function SearchBar(): JSX.Element {
   // Check if we have any error to display
   const hasError = !!locationsError || (!isLocationsLoading && !locationsData)
   const errorMessage =
-    locationsError instanceof Error ? locationsError.message : "Failed toload locations. Please try again."
+    locationsError instanceof Error ? locationsError.message : "Failed to load locations. Please try again."
 
   return (
     <>
@@ -269,7 +301,7 @@ function SearchBar(): JSX.Element {
                   searchInputRef.current.focus()
                 }
               }}
-            > 
+            >
               {isLocationsLoading ? (
                 <div className="p-2 text-center">Loading locations...</div>
               ) : hasError ? (
@@ -291,14 +323,22 @@ function SearchBar(): JSX.Element {
                 locationsToDisplay.map((location, index) => (
                   <DropdownMenuItem
                     key={`${location.country}-${location.state}-${index}`}
-                    onClick={() => handleLocationSelect(location)}
+                    onClick={() => {
+                      handleLocationSelect(location)
+                      // If we have a search query, allow clicking on location to view products
+                      if (searchQuery && searchQuery.length > 0) {
+                        handleViewProducts(location)
+                      }
+                    }}
                     className="flex justify-between cursor-pointer hover:bg-black/10"
                   >
                     <span>
                       {location.state}, {location.country}
                     </span>
                     {location.productCount !== undefined && (
-                      <span className="ml-2 text-sm bg-primary text-white  px-2 py-0.5 rounded-full">{location.productCount}</span>
+                      <span className="ml-2 text-sm bg-primary text-white px-2 py-0.5 rounded-full">
+                        {location.productCount}
+                      </span>
                     )}
                   </DropdownMenuItem>
                 ))
@@ -328,7 +368,7 @@ function SearchBar(): JSX.Element {
               className="absolute right-0 top-0 lg:mt-[0] h-[44px] lg:h-full rounded-l-none dark:hover:opacity-90"
               disabled={isLocationsLoading || hasError || !selectedLocation || isSearching}
             >
-              Search
+              {isSearching ? "Searching..." : "Search"}
             </Button>
           </div>
         </form>

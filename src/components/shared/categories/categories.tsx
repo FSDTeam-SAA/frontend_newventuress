@@ -39,7 +39,7 @@ function Categories() {
   const { data, isLoading, isError } = useQuery<CategorySubcategoryResponse>({
     queryKey: ["categorySubcategory", industry],
     queryFn: async (): Promise<CategorySubcategoryResponse> =>
-      fetch(`http://localhost:8001/api/get/all/category-subcategory/${industry}`, {
+      fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/get/all/category-subcategory/${industry}`, {
         method: "GET",
       }).then((res) => res.json() as Promise<CategorySubcategoryResponse>),
   })
