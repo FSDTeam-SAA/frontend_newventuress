@@ -21,7 +21,7 @@ export const ProductImageGallery: React.FC<ProductImageGalleryProps> = ({
           <Image
             key={index}
             loading="lazy"
-            src={image.src}
+            src={image.src || "https://images.pexels.com/photos/28216688/pexels-photo-28216688/free-photo-of-autumn-camping.png?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"}
             alt={image.alt}
             width={100}
             height={100}
@@ -34,7 +34,7 @@ export const ProductImageGallery: React.FC<ProductImageGalleryProps> = ({
       {/* Main Image Section */}
       <Image
         loading="lazy"
-        src={selectedImage.src}
+        src={selectedImage.src || "https://images.pexels.com/photos/28216688/pexels-photo-28216688/free-photo-of-autumn-camping.png?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"}
         alt={selectedImage.alt}
         width={570}
         height={600}
