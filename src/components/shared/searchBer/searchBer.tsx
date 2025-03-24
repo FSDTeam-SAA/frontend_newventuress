@@ -275,9 +275,11 @@ function SearchBar(): JSX.Element {
         )}
 
         <form
-          className="flex flex-1 gap-2 w-full border-1 border-primary-green outline-0 mb-1 lg:mb-0"
+          className="flex flex-1 gap-2 w-full border-1 border-primary-green outline-0 mb-1 lg:mb-0 "
           onSubmit={handleSearchSubmit}
         >
+          <div className="dark:block hidden">
+
           {/* Store location selector DropdownMenu */}
           <DropdownMenu open={isDropdownOpen} onOpenChange={handleDropdownOpenChange}>
             <DropdownMenuTrigger asChild>
@@ -293,7 +295,7 @@ function SearchBar(): JSX.Element {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent
-              className="w-[220px] bg-white text-black"
+              className="w-[220px] bg-white text-black dark:block hidden"
               // Prevent dropdown from stealing focus
               onCloseAutoFocus={(e) => {
                 e.preventDefault()
@@ -345,6 +347,7 @@ function SearchBar(): JSX.Element {
               )}
             </DropdownMenuContent>
           </DropdownMenu>
+          </div>
 
           <div className="flex-1 relative h-[34px] lg:h-full">
             <div className="flex items-center h-[44px]">
