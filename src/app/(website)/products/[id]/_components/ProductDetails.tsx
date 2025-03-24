@@ -116,7 +116,7 @@ const ProductDetails = ({ productId }: props) => {
     productImages.length > 0
       ? productImages[0]
       : {
-          src: "/placeholder.svg?height=600&width=600",
+          src: "https://images.pexels.com/photos/28216688/pexels-photo-28216688/free-photo-of-autumn-camping.png?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
           alt: "Product main image",
         }
 
