@@ -8,6 +8,7 @@ import { useApplicationAs } from "@/hooks/useApplicationAs"
 import Link from "next/link"
 import { useState } from "react"
 import NotFound from "../NotFound/NotFound"
+import { ScrollArea } from "@/components/ui/scroll-area"
 
 // Define the type for the API response
 interface CategorySubcategoryResponse {
@@ -106,11 +107,7 @@ function Categories() {
             </div>
           ))}
         </div>
-        <div className="mt-8 pt-4 border-t">
-          <Link href="/vendors" className="font-medium hover:underline">
-            List of All Store Vendors
-          </Link>
-        </div>
+       
       </div>
     )
   }
@@ -140,7 +137,12 @@ function Categories() {
               className="w-auto rounded-lg p-0 font-medium leading-[24px] text-black mt-[10px] lg:mt-[10px] overflow-hidden bg-white dark:border-none"
               style={{ width: "min(90vw, 800px)" }}
             >
-              {content}
+              <ScrollArea className="h-[80vh] max-h-[700px]">{content}</ScrollArea>
+              {!isError && ( <div className=" border-t flex items-center justify-center py-6">
+                <Link href="#" className="font-medium hover:underline">
+                  List of All Store Vendors
+                </Link>
+              </div>)}
             </DropdownMenuContent>
           </motion.div>
         )}
