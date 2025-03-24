@@ -1,13 +1,13 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client"
 
 import { Checkbox } from "@/components/ui/checkbox"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Slider } from "@/components/ui/slider"
-import { countries } from "@/routes"
 import { useQuery } from "@tanstack/react-query"
 import { useState } from "react"
+import ServerLocationSelector from "./ServerLocationSelector"
 
 interface Category {
   _id: string
@@ -44,9 +44,7 @@ interface SidebarFiltersProps {
 
 export default function SidebarFilters({ onFilterChange, priceRange }: SidebarFiltersProps) {
   const [selectedCategories, setSelectedCategories] = useState<string[]>([])
-  const [selectedAvailability, setSelectedAvailability] = useState<string[]>([]);
-
-  
+  const [selectedAvailability, setSelectedAvailability] = useState<string[]>([])
 
   // Fetch categories from API
   const { data: categoriesData, isLoading: isCategoriesLoading } = useQuery<CategoryResponse>({
@@ -59,7 +57,6 @@ export default function SidebarFilters({ onFilterChange, priceRange }: SidebarFi
       return response.json()
     },
   })
-
 
   // Handle slider changes for price
   const handlePriceChange = (value: number[]) => {
@@ -100,43 +97,16 @@ export default function SidebarFilters({ onFilterChange, priceRange }: SidebarFi
     })
   }
 
-  // Handle availability selection
-  const handleAvailabilityChange = (status: string) => {
-    setSelectedAvailability((prev) => {
-      const updated = prev.includes(status) ? prev.filter((s) => s !== status) : [...prev, status]
-
-      onFilterChange({
-        priceRange,
-        categories: selectedCategories,
-        availability: updated,
-      })
-
-      return updated
-    })
-  }
-
-  console.log(typeof handleAvailabilityChange)
-
   return (
-    <aside className="w-[270px] space-y-4 mt-[52px]">
+    <aside className="w-[290px] space-y-4 mt-[52px]">
+      {/* Store Location - Using the improved ServerLocationSelector */}
       <div className="rounded-lg bg-[#E6EEF6] dark:bg-[#482D721A] p-4">
-      <h2 className="text-[28px] font-bold text-gradient dark:text-gradient-pink mb-4">My Store Location</h2>
-      <div>
-      <Select>
-      <SelectTrigger className="w-full text-black">
-        <SelectValue className="dark:text-black placeholder:text-black" placeholder="Select a country" />
-      </SelectTrigger>
-      <SelectContent>
-        <SelectGroup>
-          {countries.map((c) => (
-            <SelectItem value={c} key={c}>{c}</SelectItem>
-          ))}
-          
-        </SelectGroup>
-      </SelectContent>
-    </Select>
+        <h2 className="text-[28px] font-bold text-gradient dark:text-gradient-pink mb-4">My Store Location</h2>
+        <div className="w-full">
+          <ServerLocationSelector />
+        </div>
       </div>
-      </div>
+
       {/* Price Filter */}
       <div className="rounded-lg bg-[#E6EEF6] dark:bg-[#482D721A] p-4">
         <h2 className="text-[28px] font-bold text-gradient dark:text-gradient-pink mb-4">Filter by Price</h2>
@@ -195,8 +165,6 @@ export default function SidebarFilters({ onFilterChange, priceRange }: SidebarFi
           )}
         </div>
       </div>
-
-      
     </aside>
   )
 }
