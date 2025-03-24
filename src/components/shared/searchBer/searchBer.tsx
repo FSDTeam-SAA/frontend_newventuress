@@ -302,7 +302,7 @@ function SearchBar(): JSX.Element {
                 if (searchInputRef.current) {
                   searchInputRef.current.focus()
                 }
-              }}
+              }} 
             >
               {isLocationsLoading ? (
                 <div className="p-2 text-center">Loading locations...</div>
