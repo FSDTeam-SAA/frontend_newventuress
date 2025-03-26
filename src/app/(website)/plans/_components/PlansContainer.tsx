@@ -52,11 +52,12 @@ const PlansContainer = ({token, userId}: Props) => {
                   createdAt: new Date(),
                   description: "fsdf",
                   numberOfAuction: 0,
-                  numberOfBids: 50,
-                  price: 432,
+                  numberOfListing: 0,
+                  numberOfBids: 0,
+                  price: 0,
                   updatedAt: new Date(),
                   payMethod : "Credit Card",
-                  store : 5,
+                  store : 0,
                   time : "One Time",
                 }}
 

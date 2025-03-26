@@ -308,12 +308,12 @@ export default function UserInformationForm() {
                     className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-black dark:!text-black"
                   >
                     I agree with the{" "}
-                    <Link href="/term-and-condition" className="text-gradient dark:text-gradient-pink">
+                    <Link href="/term-and-conditions" className="text-gradient dark:text-gradient-pink">
                       Term of Condition
                     </Link>{" "}
                     and{" "}
                     <Link href="/privacy-policy" className="text-gradient dark:text-gradient-pink">
-                      privacy policy
+                      Privacy Policy
                     </Link>
                   </label>
                 </div>
