@@ -27,18 +27,18 @@ const AdditionalPlansCard = ({ data, userId }: Props) => {
 
   return (
     <Card className="border border-[#E6E6E6] rounded-[10px] overflow-hidden hover:shadow-lg transition-all duration-300">
-      <div className="bg-primary p-4 text-white">
+      <div className="bg-primary dark:bg-pinkGradient p-4 text-white">
         <h3 className="text-xl font-semibold">{data.planTitle}</h3>
       </div>
       <CardContent className="p-6">
         <div className="mb-4">
-          <p className="text-3xl font-bold">${data.price}</p>
+          <p className="text-3xl font-bold dark:text-black">${data.price}</p>
         </div>
 
         <div className="space-y-4 mb-6">
           <p className="text-gray-600">{data.description}</p>
 
-          <div className="flex items-center justify-between border-t pt-2">
+          <div className="flex items-center justify-between border-t pt-2 *:dark:text-black">
             <span className="font-medium">Number of Listings:</span>
             <span className="font-bold">{data.numberOfListing}</span>
           </div>

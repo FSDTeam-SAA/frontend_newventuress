@@ -25,7 +25,7 @@ function PlansCard({ data , userId}: Props) {
       )}
       <div className="px-6 gap-[40px] pt-[75.5px]">
         <h2 className="text-xl text-gradient dark:text-gradient-pink font-semibold leading-[24px]">
-          {data.planType}
+          {data.planType.toUpperCase()}
         </h2>
         <p className="text-base text-[#696767] font-normal leading-[19.2px] mt-2">
           {data.description}
@@ -35,7 +35,7 @@ function PlansCard({ data , userId}: Props) {
         </h4>
         <div className="mt-[24px]">
           <Button onClick={() => setIsOpen(true)} className="w-full  ">
-            Subscribe Now
+            Purchase Now
           </Button>
           <PlansPayment
             isOpen={isOpen}
@@ -54,7 +54,7 @@ function PlansCard({ data , userId}: Props) {
               <IoCheckmarkCircle size={16} className="text-[#121D42] dark:text-[#845CC4]" />
             </span>
             <p className="text-sm text-[#444444] font-normal leading-[16.8px]">
-              Auction/Listing
+              Auction
             </p>
           </div>
           <div>
@@ -79,6 +79,22 @@ function PlansCard({ data , userId}: Props) {
             </p>
           </div>
         </div>
+          {/* item-3 */}
+        <div className="flex justify-between items-center mt-5">
+          <div className="flex items-center gap-2">
+            <span>
+              <IoCheckmarkCircle size={16} className="text-[#121D42] dark:text-[#845CC4]" />
+            </span>
+            <p className="text-sm text-[#444444] font-normal leading-[16.8px]">
+             Listing
+            </p>
+          </div>
+          <div>
+            <p className="text-sm text-gradient dark:text-gradient-pink font-bold leading-[16.8px]">
+               {data.numberOfListing}
+            </p>
+          </div>
+        </div>
         {/* item-3 */}
         <div className="flex justify-between items-center mt-5">
           <div className="flex items-center gap-2">
@@ -95,6 +111,7 @@ function PlansCard({ data , userId}: Props) {
             </p>
           </div>
         </div>
+        
       </div>
     </div>
   );

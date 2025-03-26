@@ -4,6 +4,7 @@ export type MembershipPlan = {
   description: string;
   price: number;
   numberOfAuction: number;
+  numberOfListing: number;
   numberOfBids: number;
   createdAt: Date;
   updatedAt: Date;

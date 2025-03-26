@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client"
 
 import type React from "react"
@@ -13,6 +14,7 @@ import { useQuery } from "@tanstack/react-query"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { useSearchStore } from "@/zustand/product/search-store"
 import { useUserId } from "@/hooks/use-user-id"
+import { getSession } from "next-auth/react"
 
 // Type definitions for our data
 interface Location {
@@ -74,14 +76,23 @@ function SearchBar(): JSX.Element {
   const [searchQuery, setSearchQuery] = useState<string>("")
   const [searchResults, setSearchResults] = useState<Location[]>([])
   const [isSearching, setIsSearching] = useState<boolean>(false)
-
+ // New state for session
+  const [session, setSession] = useState<any>(null)
   // Get search store methods
   const { setSearchQuery: setGlobalSearchQuery, setSelectedLocation: setGlobalSelectedLocation } = useSearchStore()
 
   // Refs for managing focus
   const searchInputRef = useRef<HTMLInputElement>(null)
   const dropdownTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+  // Fetch session on component mount
+  useEffect(() => {
+    const fetchSession = async () => {
+      const fetchedSession = await getSession()
+      setSession(fetchedSession)
+    }
 
+    fetchSession()
+  }, [])
   // Get user ID
   const { userId } = useUserId()
   // Remove this line: const userId = session?.user?.id
@@ -261,18 +272,18 @@ function SearchBar(): JSX.Element {
 
   // Check if we have any error to display
   const hasError = !!locationsError || (!isLocationsLoading && !locationsData)
-  const errorMessage =
-    locationsError instanceof Error ? locationsError.message : "Failed to load locations. Please try again."
+  // const errorMessage =
+  //   locationsError instanceof Error ? locationsError.message : "Failed to load locations. Please try again."
 
   return (
     <>
       <div className="hidden md:block lg:block">
-        {hasError && (
+        {/* {hasError && (
           <Alert variant="destructive" className="mb-4">
             <AlertCircle className="h-4 w-4" />
             <AlertDescription>{errorMessage}</AlertDescription>
           </Alert>
-        )}
+        )} */}
 
         <form
           className="flex flex-1 gap-2 w-full border-1 border-primary-green outline-0 mb-1 lg:mb-0 "
