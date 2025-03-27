@@ -1,71 +1,68 @@
-import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { MembershipPlan } from "@/types/membership";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation } from "@tanstack/react-query";
-import { Loader2 } from "lucide-react";
-import Image from "next/image";
-import { useForm } from "react-hook-form";
-import { IoCheckmarkCircle } from "react-icons/io5";
-import { toast } from "sonner";
-import { z } from "zod";
+"use client"
 
-const formSchema = z.object({
-  paymentMethod: z.enum(["credit-card", "paypal"]),
+import { Button } from "@/components/ui/button"
+import { Dialog, DialogContent } from "@/components/ui/dialog"
+import { Form, FormControl, FormField, FormItem } from "@/components/ui/form"
+import { Label } from "@/components/ui/label"
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
+import type { MembershipPlan } from "@/types/membership"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { useMutation } from "@tanstack/react-query"
+import { Loader2 } from "lucide-react"
+import Image from "next/image"
+import { useForm } from "react-hook-form"
+import { IoCheckmarkCircle } from "react-icons/io5"
+import { toast } from "sonner"
+import { z } from "zod"
 
-  cardholderName: z.string().optional(),
+const formSchema = z
+  .object({
+    paymentMethod: z.enum(["credit-card", "paypal", "cash-on-delivery", "bank-transfer"]),
 
-  cardNumber: z
-    .string()
-    // .regex(/^\d{16}$/, "Card number must be 16 digits")
-    .optional(),
+    cardholderName: z.string().optional(),
 
-  expDate: z
-    .string()
-    // .regex(/^(0[1-9]|1[0-2])\/([0-9]{2})$/, "Expiration date must be MM/YY")
-    .optional(),
+    cardNumber: z
+      .string()
+      // .regex(/^\d{16}$/, "Card number must be 16 digits")
+      .optional(),
 
-  cvv: z
-    .string()
-    // .regex(/^\d{3,4}$/, "CVV must be 3 or 4 digits")
-    .optional(),
-}).refine((data) => {
-  if (data.paymentMethod === "credit-card") {
-    return data.cardNumber && data.expDate && data.cvv;
-  }
-  return true;
-}, {
-  message: "Card number, expiration date, and CVV are required for credit card payments",
-  path: ["cardNumber"], // This will point to the first field in case of error
-});
+    expDate: z
+      .string()
+      // .regex(/^(0[1-9]|1[0-2])\/([0-9]{2})$/, "Expiration date must be MM/YY")
+      .optional(),
+
+    cvv: z
+      .string()
+      // .regex(/^\d{3,4}$/, "CVV must be 3 or 4 digits")
+      .optional(),
+  })
+  .refine(
+    (data) => {
+      if (data.paymentMethod === "credit-card") {
+        return data.cardNumber && data.expDate && data.cvv
+      }
+      return true
+    },
+    {
+      message: "Card number, expiration date, and CVV are required for credit card payments",
+      path: ["cardNumber"], // This will point to the first field in case of error
+    },
+  )
 
 interface PaymentModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  data: MembershipPlan;
+  isOpen: boolean
+  onClose: () => void
+  data: MembershipPlan
   userId: string | undefined
 }
 
 function PlansPayment({ isOpen, onClose, data, userId }: PaymentModalProps) {
-
-
-
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       paymentMethod: "paypal",
     },
-  });
+  })
 
   const { mutate: paypalPayment, isPending } = useMutation({
     mutationKey: ["paypal-trans-plan"],
@@ -77,47 +74,128 @@ function PlansPayment({ isOpen, onClose, data, userId }: PaymentModalProps) {
         },
         body: JSON.stringify(body),
       }).then((res) => res.json()),
-  
+
     onSuccess: (data) => {
       if (data.status) {
-        window.location.href = data.approvalUrl; // Redirect user to PayPal checkout page
+        window.location.href = data.approvalUrl // Redirect user to PayPal checkout page
       } else {
         toast.error("Failed to retrieve PayPal approval URL", {
           position: "top-right",
           richColors: true,
-        });
+        })
       }
     },
-  
+
     onError: (err) => {
       toast.error(err.message, {
         position: "top-right",
         richColors: true,
-      });
+      })
     },
-  });
+  })
 
-  const isDisabled = isPending
-  
+  const { mutate: codPayment, isPending: isCodPending } = useMutation({
+    mutationKey: ["cod-payment"],
+    mutationFn: (body: { planID: string; userID: string }) =>
+      fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/membership/purchase/cod`, {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+        },
+        body: JSON.stringify(body),
+      }).then((res) => res.json()),
 
+    onSuccess: (data) => {
+      if (data.success) {
+        toast.success("Cash on Delivery payment processed successfully", {
+          position: "top-right",
+          richColors: true,
+        })
+        onClose()
+      } else {
+        toast.error(data.message || "Failed to process Cash on Delivery payment", {
+          position: "top-right",
+          richColors: true,
+        })
+      }
+    },
+
+    onError: (err) => {
+      toast.error(err.message || "An error occurred", {
+        position: "top-right",
+        richColors: true,
+      })
+    },
+  })
+
+  const { mutate: bankTransferPayment, isPending: isBankTransferPending } = useMutation({
+    mutationKey: ["bank-transfer-payment"],
+    mutationFn: (body: { planID: string; userID: string }) =>
+      fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/membership/purchase/direct-bank`, {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+        },
+        body: JSON.stringify(body),
+      }).then((res) => res.json()),
+
+    onSuccess: (data) => {
+      if (data.success) {
+        toast.success("Bank Transfer payment processed successfully", {
+          position: "top-right",
+          richColors: true,
+        })
+        onClose()
+      } else {
+        toast.error(data.message || "Failed to process Bank Transfer payment", {
+          position: "top-right",
+          richColors: true,
+        })
+      }
+    },
+
+    onError: (err) => {
+      toast.error(err.message || "An error occurred", {
+        position: "top-right",
+        richColors: true,
+      })
+    },
+  })
+
+  const isDisabled = isPending || isCodPending || isBankTransferPending
 
   const onSubmit = (values: z.infer<typeof formSchema>) => {
-    const newSubmission = {
-      amount: data.price, // Include the charged amount in the object
-      currency: "USD",
-      userId: userId,
-      membershipId: data._id,
-      paymentMethod: values.paymentMethod
-    };
+    if (!userId) {
+      toast.error("User ID is required", {
+        position: "top-right",
+        richColors: true,
+      })
+      return
+    }
 
-
-    // Update the state with the new submission
-    // setSubmittedData(newSubmission);
-if(newSubmission.paymentMethod === "paypal") {
-  paypalPayment(newSubmission)
-}
-  };
-
+    if (values.paymentMethod === "paypal") {
+      const paypalData = {
+        amount: data.price,
+        currency: "USD",
+        userId: userId,
+        membershipId: data._id,
+        paymentMethod: values.paymentMethod,
+      }
+      paypalPayment(paypalData)
+    } else if (values.paymentMethod === "cash-on-delivery") {
+      const codData = {
+        planID: data._id,
+        userID: userId,
+      }
+      codPayment(codData)
+    } else if (values.paymentMethod === "bank-transfer") {
+      const bankData = {
+        planID: data._id,
+        userID: userId,
+      }
+      bankTransferPayment(bankData)
+    }
+  }
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -131,7 +209,7 @@ if(newSubmission.paymentMethod === "paypal") {
                   <span>
                     <IoCheckmarkCircle size={16} className="text-[#152764] dark:!text-[#6841A5]" />
                   </span>
-                  <span>Auction/Listing</span>
+                  <span>Auction</span>
                 </div>
                 <span className="text-[#152764] dark:text-gradient-pink text-[15px] font-bold">
                   {data.numberOfAuction}
@@ -148,6 +226,19 @@ if(newSubmission.paymentMethod === "paypal") {
                   {data.numberOfBids}
                 </span>
               </div>
+              {/*  addition----------------- */}
+              <div className="flex justify-between">
+                <div className="flex items-center gap-3 text-[16px] font-normal text-[#444444]">
+                  <span>
+                    <IoCheckmarkCircle size={16} className="text-[#152764] dark:!text-[#6841A5]" />
+                  </span>
+                  <span>Listing</span>
+                </div>
+                <span className="text-[#152764] dark:text-gradient-pink text-[15px] font-bold">
+                  {data.numberOfListing}
+                </span>
+              </div>
+
               <div className="flex justify-between">
                 <div className="flex items-center gap-3 text-[16px] font-normal text-[#444444]">
                   <span>
@@ -155,17 +246,11 @@ if(newSubmission.paymentMethod === "paypal") {
                   </span>
                   <span>Messages</span>
                 </div>
-                <span className="text-[#152764] dark:text-gradient-pink text-[15px] font-bold">
-                  Unlimited
-                </span>
+                <span className="text-[#152764] dark:text-gradient-pink text-[15px] font-bold">Unlimited</span>
               </div>
               <div className="flex justify-between font-medium pt-2 border-t-[1px] border-[#000000]">
-                <span className=" text-[16px] font-semibold text-[#444444]">
-                  Charged
-                </span>
-                <span className="text-[#000000] font-medium text-[16px]">
-                  &{data.price}
-                </span>
+                <span className=" text-[16px] font-semibold text-[#444444]">Charged</span>
+                <span className="text-[#000000] font-medium text-[16px]">&{data.price}</span>
               </div>
             </div>
           </div>
@@ -178,34 +263,25 @@ if(newSubmission.paymentMethod === "paypal") {
                 render={({ field }) => (
                   <FormItem>
                     <FormControl>
-                      <RadioGroup
-                        onValueChange={field.onChange}
-                        defaultValue={field.value}
-                        className="space-y-3"
-                      >
+                      <RadioGroup onValueChange={field.onChange} defaultValue={field.value} className="space-y-3">
                         <div
                           className={`flex items-center justify-between h-[52px] bg-[#ffffff] border-[#152764] rounded-md border p-4 ${
-                            field.value === "credit-card"
-                              ? "border-[#152764] bg-[#244b7210]"
-                              : ""
-                          }`}
+                            field.value === "credit-card" ? "border-[#152764] bg-[#244b7210]" : ""
+                          } ${field.value === "credit-card" ? "cursor-not-allowed opacity-50" : ""}`}
                         >
                           <div className="flex items-center space-x-2">
                             <RadioGroupItem
                               value="credit-card"
                               id="credit-card"
-                              className="h-[20px] w-[20px] border-[#152764] text-[#152764]  fill-[#152764]"
+                              disabled
+                              className="h-[20px] w-[20px] border-[#152764] text-[#152764] fill-[#152764] cursor-not-allowed opacity-50"
                             />
-                            <Label htmlFor="credit-card" className="dark:text-gradient-pink">Credit Card</Label>
+                            <Label htmlFor="credit-card" className="dark:text-gradient-pink opacity-50">
+                              Credit Card
+                            </Label>
                           </div>
-                          <div className="flex space-x-2 items-center">
-                            <Image
-                              src="/assets/img/cVisa.png"
-                              width={37}
-                              height={11}
-                              alt="Visa"
-                              className="h-6"
-                            />
+                          <div className="flex space-x-2 items-center opacity-50">
+                            <Image src="/assets/img/cVisa.png" width={37} height={11} alt="Visa" className="h-6" />
                             <Image
                               src="/assets/img/mastercard.png"
                               width={39}
@@ -215,7 +291,8 @@ if(newSubmission.paymentMethod === "paypal") {
                             />
                           </div>
                         </div>
-                        <div>
+
+                        {/* <div>
                           {form.watch("paymentMethod") === "credit-card" && (
                             <div className="space-y-4">
                               <FormField
@@ -289,12 +366,10 @@ if(newSubmission.paymentMethod === "paypal") {
                               </div>
                             </div>
                           )}
-                        </div>
+                        </div> */}
                         <div
                           className={`flex items-center justify-between bg-[#FFFFFF] h-[52px] border-[#152764] rounded-md border p-4 ${
-                            field.value === "paypal"
-                              ? "border-[#152764] bg-[#244b7210]"
-                              : ""
+                            field.value === "paypal" ? "border-[#152764] bg-[#244b7210]" : ""
                           }`}
                         >
                           <div className="flex items-center space-x-2">
@@ -303,15 +378,44 @@ if(newSubmission.paymentMethod === "paypal") {
                               id="paypal"
                               className="h-[20px] w-[20px] border-[#152764] text-[#152764] fill-[#152764]"
                             />
-                            <Label htmlFor="paypal" className="dark:text-gradient-pink">PayPal</Label>
+                            <Label htmlFor="paypal" className="dark:text-gradient-pink">
+                              PayPal
+                            </Label>
                           </div>
-                          <Image
-                            src="/assets/img/ppLogo.png"
-                            width={62}
-                            height={15}
-                            alt="PayPal"
-                            className="h-6"
-                          />
+                          <Image src="/assets/img/ppLogo.png" width={62} height={15} alt="PayPal" className="h-6" />
+                        </div>
+                        <div
+                          className={`flex items-center justify-between bg-[#FFFFFF] h-[52px] border-[#152764] rounded-md border p-4 ${
+                            field.value === "cash-on-delivery" ? "border-[#152764] bg-[#244b7210]" : ""
+                          }`}
+                        >
+                          <div className="flex items-center space-x-2">
+                            <RadioGroupItem
+                              value="cash-on-delivery"
+                              id="cash-on-delivery"
+                              className="h-[20px] w-[20px] border-[#152764] text-[#152764] fill-[#152764]"
+                            />
+                            <Label htmlFor="cash-on-delivery" className="dark:text-gradient-pink">
+                              Cash on Delivery
+                            </Label>
+                          </div>
+                        </div>
+
+                        <div
+                          className={`flex items-center justify-between bg-[#FFFFFF] h-[52px] border-[#152764] rounded-md border p-4 ${
+                            field.value === "bank-transfer" ? "border-[#152764] bg-[#244b7210]" : ""
+                          }`}
+                        >
+                          <div className="flex items-center space-x-2">
+                            <RadioGroupItem
+                              value="bank-transfer"
+                              id="bank-transfer"
+                              className="h-[20px] w-[20px] border-[#152764] text-[#152764] fill-[#152764]"
+                            />
+                            <Label htmlFor="bank-transfer" className="dark:text-gradient-pink">
+                              Bank Transfer
+                            </Label>
+                          </div>
                         </div>
                       </RadioGroup>
                     </FormControl>
@@ -320,14 +424,16 @@ if(newSubmission.paymentMethod === "paypal") {
               />
 
               <Button type="submit" className="w-full" disabled={isDisabled}>
-                Continue {isPending && <Loader2 className="animate-spin ml-2" />}
+                Continue{" "}
+                {(isPending || isCodPending || isBankTransferPending) && <Loader2 className="animate-spin ml-2" />}
               </Button>
             </form>
           </Form>
         </div>
       </DialogContent>
     </Dialog>
-  );
+  )
 }
 
-export default PlansPayment;
+export default PlansPayment
+
