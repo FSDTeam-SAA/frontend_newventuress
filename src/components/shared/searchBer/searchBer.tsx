@@ -15,6 +15,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert"
 import { useSearchStore } from "@/zustand/product/search-store"
 import { useUserId } from "@/hooks/use-user-id"
 import { getSession } from "next-auth/react"
+import { toast } from "sonner"
 
 // Type definitions for our data
 interface Location {
@@ -168,11 +169,7 @@ function SearchBar(): JSX.Element {
         console.error("Error fetching product counts:", error)
         // Reset search results on error
         setSearchResults([])
-        // toast({
-        //   title: "Error searching products",
-        //   description: "Failed to search for products. Please try again.",
-        //   variant: "destructive",
-        // })
+        toast("Failed to search for products. Please try again.")
       } finally {
         setIsSearching(false)
       }
@@ -239,11 +236,7 @@ function SearchBar(): JSX.Element {
 
       if (!selectedLocation) {
         alert("Location required")
-        // toast({
-        //   title: "Location required",
-        //   description: "Please select a location before searching",
-        //   variant: "destructive",
-        // })
+        toast("Please select a location before searching")
         return
       }
 
@@ -252,7 +245,7 @@ function SearchBar(): JSX.Element {
         handleViewProducts(selectedLocationObject)
       }
     },
-    [searchQuery, selectedLocation, selectedLocationObject, userId, handleViewProducts],
+    [ selectedLocation, selectedLocationObject, userId, handleViewProducts],
   )
 
   // Handle dropdown open/close without interfering with typing
