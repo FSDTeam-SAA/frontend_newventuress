@@ -106,7 +106,7 @@ function PlansPayment({ isOpen, onClose, data, userId }: PaymentModalProps) {
       }).then((res) => res.json()),
 
     onSuccess: (data) => {
-      if (data.success) {
+      if (data.status) {
         toast.success("Cash on Delivery payment processed successfully", {
           position: "top-right",
           richColors: true,
@@ -139,8 +139,9 @@ function PlansPayment({ isOpen, onClose, data, userId }: PaymentModalProps) {
         body: JSON.stringify(body),
       }).then((res) => res.json()),
 
+     
     onSuccess: (data) => {
-      if (data.success) {
+      if (data.status) {
         toast.success("Bank Transfer payment processed successfully", {
           position: "top-right",
           richColors: true,
