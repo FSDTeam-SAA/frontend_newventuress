@@ -135,7 +135,7 @@ function SponsoredListingPayment({ isOpen, onClose, data, userId }: PaymentModal
       }).then((res) => res.json()),
 
     onSuccess: (data) => {
-      if (data.success) {
+      if (data.status) {
         toast.success("Cash on Delivery payment processed successfully", {
           position: "top-right",
           richColors: true,
@@ -169,7 +169,7 @@ function SponsoredListingPayment({ isOpen, onClose, data, userId }: PaymentModal
       }).then((res) => res.json()),
 
     onSuccess: (data) => {
-      if (data.success) {
+      if (data.status) {
         toast.success("Bank Transfer payment processed successfully", {
           position: "top-right",
           richColors: true,

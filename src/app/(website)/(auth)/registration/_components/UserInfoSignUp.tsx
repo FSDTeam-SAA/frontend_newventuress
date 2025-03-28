@@ -121,7 +121,7 @@ export default function UserInformationForm() {
 
       <Form {...form}>
         <form
-          className="flex flex-col gap-[20px] text-[20px]"
+          className="flex flex-col gap-[20px] text-[20px] *:dark:text-black"
           onSubmit={form.handleSubmit(onSubmit)}
         >
           {/* business name Field */}
