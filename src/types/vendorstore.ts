@@ -89,6 +89,12 @@ export type Product = {
   __v: number;
   purchases: number;
   storeID: string;
+  country?: string;
+  thc?: string;
+  cbd?: string;
+  state?: string;
+  soldMark?: boolean;
+  productPolicy?: string;
 };
 
 export type VendorAuctionListingResponse = {

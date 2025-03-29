@@ -1,5 +1,6 @@
 "use client"
-import React, { useEffect, useState } from "react"
+import type React from "react"
+import { useEffect, useState } from "react"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
@@ -10,58 +11,58 @@ import { InputWithTags } from "@/components/ui/input-with-tags"
 import { Textarea } from "@/components/ui/textarea"
 import { Checkbox } from "@/components/ui/checkbox"
 import ProductGallery from "@/components/shared/imageUpload/ProductGallery"
-import { DateTimePicker } from "@/components/ui/datetime-picker"
 import { useSession } from "next-auth/react"
 import { useMutation, useQuery } from "@tanstack/react-query"
 import { toast } from "sonner"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import type { Product } from "@/types/vendorstore"
+import { useQueryClient } from "@tanstack/react-query"
 
-// Update the form schema to include country and state fields
+// Form schema for product editing
 const formSchema = z.object({
   title: z.string().min(1, "Title is required"),
   shortDescription: z.string(),
   description: z.string(),
-  industry: z.string().min(1, "Industry is required"),
+  productType: z.string().min(1, "Industry is required"),
   category: z.string().min(1, "Category is required"),
   subCategory: z.string().optional(),
-  openingPrice: z.string().min(1, "Opening price is required"),
-  reservePrice: z.string().optional(),
-  buyNowPrice: z.string().optional(),
-  startingDateAndTime: z.coerce.date().optional(),
-  endingDateAndTime: z.coerce.date().optional(),
+  regularPrice: z.string().min(1, "Regular price is required"),
+  selllingPrice: z.string().optional(),
   quantity: z.string().min(1, "Quantity is required"),
   tags: z.array(z.string()).optional(),
   thc: z.string().optional(),
   cbd: z.string().optional(),
   country: z.string().min(1, "Country is required"),
   state: z.string().optional(),
-  makeAnOfferCheck: z.boolean().default(false),
-  makeAnOfferValue: z.string().optional(),
-  hasCOA: z.boolean().default(false),
-  images: z.array(z.any()).optional(),
-  coaImage: z.any().optional(),
-  auctionType: z.string().min(1, "Auction type is required"),
-  productCondition: z.string().min(1, "Product condition is required"),
-  bidIncrement: z.string().min(1, "Bid increment is required"),
+  coa: z.boolean().default(false),
+  photos: z.array(z.any()).optional(),
+  coaCertificate: z.any().optional(),
+  buyIndividually: z.boolean().default(false),
   productPolicy: z.string().optional(),
 })
 
-const AddAuctionForm: React.FC = () => {
+interface EditProductDialogProps {
+  open: boolean
+  onOpenChange: (open: boolean) => void
+  product: Product | null
+}
+
+const EditProductDialog: React.FC<EditProductDialogProps> = ({ open, onOpenChange, product }) => {
   const [images, setImages] = useState<File[]>([])
-  const [coaImage, setCoaImage] = useState<File | null>(null)
-  const [formValues, setFormValues] = useState({})
+  const [existingImages, setExistingImages] = useState<string[]>([])
+  const [coaCertificate, setCoaCertificate] = useState<File | null>(null)
   const [selectedIndustry, setSelectedIndustry] = useState<string>("")
   const [selectedCategory, setSelectedCategory] = useState<string>("")
   const [categories, setCategories] = useState<any[]>([])
   const [subCategories, setSubCategories] = useState<any[]>([])
-  const [startDate, setStartDate] = useState<Date | undefined>(new Date())
-  const [endDate, setEndDate] = useState<Date | undefined>(new Date())
-
-  // Add state variables for locations, countries, and states
   const [locations, setLocations] = useState<any[]>([])
   const [countries, setCountries] = useState<string[]>([])
   const [states, setStates] = useState<string[]>([])
   const [selectedCountry, setSelectedCountry] = useState<string>("")
+  const [tags, setTags] = useState<string[]>([])
+
+  const queryClient = useQueryClient()
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -69,52 +70,24 @@ const AddAuctionForm: React.FC = () => {
       title: "",
       shortDescription: "",
       description: "",
-      industry: "",
+      productType: "",
       category: "",
       subCategory: "",
-      openingPrice: "",
-      reservePrice: "", 
-      buyNowPrice: "",
-      startingDateAndTime: new Date(),
-      endingDateAndTime: new Date(),
+      regularPrice: "",
+      selllingPrice: "",
       quantity: "",
       tags: [],
       thc: "",
       cbd: "",
       country: "",
       state: "",
-      makeAnOfferCheck: false,
-      makeAnOfferValue: "",
-      hasCOA: false,
-      images: [],
-      coaImage: null,
-      auctionType: "",
-      productCondition: "",
-      bidIncrement: "",
+      coa: false,
+      photos: [],
+      coaCertificate: null,
+      buyIndividually: false,
       productPolicy: "",
     },
   })
-
-  const [tags, setTags] = React.useState<string[]>([])
-
-  useEffect(() => {
-    form.setValue("tags", tags)
-    form.trigger("tags")
-    form.setValue(
-      "images",
-      images.map((image) => image.name),
-    )
-  }, [tags, form, images])
-
-  const handleImageChange = (images: File[]) => {
-    setImages(images)
-    setFormValues({ ...formValues, images })
-  }
-
-  const handleCoaImageChange = (image: File) => {
-    setCoaImage(image)
-    setFormValues({ ...formValues, coaImage: image })
-  }
 
   const session = useSession()
   const token = session.data?.user.token
@@ -198,18 +171,24 @@ const AddAuctionForm: React.FC = () => {
   useEffect(() => {
     if (selectedIndustry) {
       refetchCategories()
-      form.setValue("category", "")
-      form.setValue("subCategory", "")
-      setSelectedCategory("")
+      // Only reset category and subcategory if there's no product data
+      if (!product) {
+        form.setValue("category", "")
+        form.setValue("subCategory", "")
+        setSelectedCategory("")
+      }
     }
-  }, [selectedIndustry, refetchCategories, form])
+  }, [selectedIndustry, refetchCategories, form, product])
 
   useEffect(() => {
     if (selectedCategory) {
       refetchSubCategories()
-      form.setValue("subCategory", "")
+      // Only reset subcategory if there's no product data
+      if (!product) {
+        form.setValue("subCategory", "")
+      }
     }
-  }, [selectedCategory, refetchSubCategories, form])
+  }, [selectedCategory, refetchSubCategories, form, product])
 
   // Check if THC and CBD inputs should be disabled
   const shouldDisableThcCbd = () => {
@@ -217,46 +196,130 @@ const AddAuctionForm: React.FC = () => {
     return categoryName === "Accessories" || categoryName === "Apparel"
   }
 
-  const { mutate } = useMutation<any, unknown, FormData>({
-    mutationKey: ["add-auction"],
-    mutationFn: (formData) =>
-      fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/vendor/auction/create`, {
-        method: "POST",
+  // Populate form with product data when it changes
+  useEffect(() => {
+    if (product) {
+      console.log("Setting form values with product data:", product._id)
+
+      // Set selected values first so they trigger the right fetches
+      setSelectedIndustry(product.productType || "")
+      setSelectedCategory(product.category || "")
+      setSelectedCountry(product.country || "")
+      setTags(product.tags || [])
+
+      // Set existing images
+      if (product.photos && product.photos.length > 0) {
+        setExistingImages(product.photos)
+      } else {
+        setExistingImages([])
+      }
+
+      // Then set form values
+      form.reset({
+        title: product.title || "",
+        shortDescription: product.shortDescription || "",
+        description: product.description || "",
+        productType: product.productType || "",
+        category: product.category || "",
+        subCategory: product.subCategory || "",
+        regularPrice: product.regularPrice?.toString() || "",
+        selllingPrice: product.selllingPrice?.toString() || "",
+        quantity: product.quantity?.toString() || "",
+        tags: product.tags || [],
+        thc: product.thc?.toString() || "",
+        cbd: product.cbd?.toString() || "",
+        country: product.country || "",
+        state: product.state || "",
+        coa: product.coa || false,
+        photos: [],
+        coaCertificate: null,
+        buyIndividually: product.soldMark || false,
+        productPolicy: product.productPolicy || "",
+      })
+    }
+  }, [product, form])
+
+  useEffect(() => {
+    form.setValue("tags", tags)
+    form.trigger("tags")
+    form.setValue(
+      "photos",
+      images.map((image) => image.name),
+    )
+  }, [tags, form, images])
+
+  const handleImageChange = (newImages: File[]) => {
+    setImages(newImages)
+  }
+
+  const handleCoaImageChange = (image: File) => {
+    setCoaCertificate(image)
+  }
+
+  // Add a useEffect to log and debug the existingImages state
+  useEffect(() => {
+    console.log("Existing images:", existingImages)
+  }, [existingImages])
+
+  const { mutate, isPending } = useMutation({
+    mutationFn: async (formData: FormData) => {
+      if (!product?._id) throw new Error("Product ID is missing")
+
+      return fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/products/edit/${product._id}`, {
+        method: "PUT",
         headers: {
           Authorization: `Bearer ${token}`,
         },
         body: formData,
-      }).then((res) => res.json()),
-
-    onSuccess: (formData) => {
-      if (formData.status === false) {
-        toast.error(formData.message, {
+      }).then((res) => res.json())
+    },
+    onSuccess: (data) => {
+      if (data.status === false) {
+        toast.error(data.message, {
           position: "top-right",
           richColors: true,
         })
         return
       }
-      form.reset()
-      toast.success(formData.message, {
+
+      toast.success(data.message || "Product updated successfully", {
+        position: "top-right",
+        richColors: true,
+      })
+
+      // Invalidate and refetch products data
+      queryClient.invalidateQueries({ queryKey: ["auction_listing"] })
+
+      // Close the dialog
+      onOpenChange(false)
+    },
+    onError: (error) => {
+      toast.error("Failed to update product: " + error.message, {
         position: "top-right",
         richColors: true,
       })
     },
   })
 
+  // Update the onSubmit function to properly handle existing images
   const onSubmit = (data: z.infer<typeof formSchema>) => {
+    if (!product?._id) {
+      toast.error("Product ID is missing", {
+        position: "top-right",
+        richColors: true,
+      })
+      return
+    }
+
     const formData = new FormData()
     formData.append("title", data.title)
     formData.append("shortDescription", data.shortDescription)
     formData.append("description", data.description)
-    formData.append("industry", data.industry)
+    formData.append("productType", data.productType)
     formData.append("category", data.category)
     formData.append("subCategory", data.subCategory || "")
-    formData.append("openingPrice", data.openingPrice)
-    formData.append("reservePrice", data.reservePrice || "")
-    formData.append("buyNowPrice", data.buyNowPrice || "")
-    formData.append("startingDateAndTime", data.startingDateAndTime?.toString() || "")
-    formData.append("endingDateAndTime", data.endingDateAndTime?.toString() || "")
+    formData.append("regularPrice", data.regularPrice)
+    formData.append("selllingPrice", data.selllingPrice || "")
     formData.append("quantity", data.quantity)
     formData.append("tags", JSON.stringify(data.tags))
     formData.append("thc", data.thc || "")
@@ -271,66 +334,43 @@ const AddAuctionForm: React.FC = () => {
       formData.append("state", "null")
     }
 
-    formData.append("makeAnOfferCheck", data.makeAnOfferCheck.toString())
-    formData.append("makeAnOfferValue", data.makeAnOfferValue || "")
-    formData.append("hasCOA", data.hasCOA.toString())
+    formData.append("coa", data.coa.toString())
+    formData.append("soldMark", data.buyIndividually.toString())
+    formData.append("productPolicy", data.productPolicy || "")
 
+    // Append existing images that should be kept
+    formData.append("existingPhotos", JSON.stringify(existingImages))
+    console.log("Sending existing photos:", existingImages)
+
+    // Append new images if any
     if (images.length > 0) {
       images.forEach((image) => {
-        formData.append("images", image)
+        formData.append("photos", image)
       })
     }
 
-    if (data.hasCOA && coaImage) {
-      formData.append("coaImage", coaImage)
+    if (data.coa && coaCertificate) {
+      formData.append("coaCertificate", coaCertificate)
     }
 
-    formData.append("auctionType", data.auctionType)
-    formData.append("productCondition", data.productCondition)
-    formData.append("bidIncreament", data.bidIncrement)
-    formData.append("productPolicy", data.productPolicy || "")
-
-    console.log(data)
     mutate(formData)
   }
 
+  useEffect(() => {
+    console.log("EditProductDialog mounted with open:", open, "and product:", product?._id)
+  }, [open, product])
+
   return (
-    <section className="pb-[60px]">
-      <div className="bg-white rounded-[24px] p-[32px]">
-        <div
-          className={
-            "bg-primary dark:bg-pinkGradient px-4 py-3 mb- rounded-t-3xl text-white text-[32px] leading-[38px] font-semibold h-[78px] flex items-center"
-          }
-        >
-          Add Auction Product
-        </div>
+    <Dialog open={open} onOpenChange={onOpenChange} modal={true}>
+      <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle className="text-2xl font-semibold">Edit Product</DialogTitle>
+        </DialogHeader>
+
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)}>
-            <div className="flex gap-4">
-              <div className="w-[58%] space-y-[16px] mt-[16px]">
-                <FormField
-                  control={form.control}
-                  name="auctionType"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="leading-[19.2px] text-[#444444] text-[16px] font-normal">
-                        Auction Type<span className="text-red-500">*</span>
-                      </FormLabel>
-                      <Select onValueChange={field.onChange} value={field.value}>
-                        <FormControl>
-                          <SelectTrigger className="h-[51px] border-[#9C9C9C] dark:!text-black">
-                            <SelectValue placeholder="Select Auction Type" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="normal">Normal</SelectItem>
-                          <SelectItem value="reverse">Reverse</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+            <div className="flex gap-4 flex-col md:flex-row">
+              <div className="w-full md:w-[58%] space-y-[16px] mt-[16px]">
                 <FormField
                   control={form.control}
                   name="title"
@@ -379,7 +419,7 @@ const AddAuctionForm: React.FC = () => {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className="leading-[19.2px] text-[#9C9C9C] text-[16px] font-medium">
-                        Full Description
+                        Description
                       </FormLabel>
                       <FormControl>
                         <Textarea
@@ -393,34 +433,10 @@ const AddAuctionForm: React.FC = () => {
                     </FormItem>
                   )}
                 />
-                
-                <FormField
-                  control={form.control}
-                  name="productCondition"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="leading-[19.2px] text-[#444444] text-[16px] font-normal">
-                        Product Condition<span className="text-red-500">*</span>
-                      </FormLabel>
-                      <Select onValueChange={field.onChange} value={field.value}>
-                        <FormControl>
-                          <SelectTrigger className="h-[51px] border-[#9C9C9C] dark:!text-black">
-                            <SelectValue placeholder="Select Product Condition" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="new">New</SelectItem>
-                          <SelectItem value="used">Used</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
 
                 <FormField
                   control={form.control}
-                  name="industry"
+                  name="productType"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className="leading-[19.2px] text-[#9C9C9C] text-[16px] font-medium">
@@ -488,7 +504,6 @@ const AddAuctionForm: React.FC = () => {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className="leading-[19.2px] text-[#444444] text-[16px] font-normal">
-
                         Sub Category<span className="text-red-500">*</span>
                       </FormLabel>
                       <Select onValueChange={field.onChange} value={field.value} disabled={!selectedCategory}>
@@ -511,14 +526,14 @@ const AddAuctionForm: React.FC = () => {
                 />
 
                 <div className="grid grid-cols-12 gap-4">
-                  <div className="col-span-4">
+                  <div className="col-span-6">
                     <FormField
                       control={form.control}
-                      name="openingPrice"
+                      name="regularPrice"
                       render={({ field }) => (
                         <FormItem className="flex flex-col">
                           <FormLabel className="leading-[19.2px] text-[#444444] text-[16px] font-normal">
-                            Opening Price<span className="text-red-500">*</span>
+                            Regular Price<span className="text-red-500">*</span>
                           </FormLabel>
                           <div className="flex justify-between mt-2 w-full whitespace-nowrap rounded-md border border-solid border-[#B0B0B0] h-[51px]">
                             <div className="gap-3 self-stretch px-4 dark:!text-[#6841A5] text-sm font-semibold leading-tight text-[#0057A8] dark:bg-[#482D721A] bg-gray-200 rounded-l-lg h-[49px] w-[42px] flex items-center justify-center">
@@ -539,14 +554,14 @@ const AddAuctionForm: React.FC = () => {
                     />
                   </div>
 
-                  <div className="col-span-4">
+                  <div className="col-span-6">
                     <FormField
                       control={form.control}
-                      name="reservePrice"
+                      name="selllingPrice"
                       render={({ field }) => (
                         <FormItem className="flex flex-col">
                           <FormLabel className="leading-[19.2px] text-[#444444] text-[16px] font-normal">
-                            Reserve Price
+                            Sale Price
                           </FormLabel>
                           <div className="flex justify-between mt-2 w-full whitespace-nowrap rounded-md border border-solid border-[#B0B0B0] h-[51px]">
                             <div className="gap-3 self-stretch px-4 dark:!text-[#6841A5] text-sm font-semibold leading-tight text-[#0057A8] dark:bg-[#482D721A] bg-gray-200 rounded-l-lg h-[49px] w-[42px] flex items-center justify-center">
@@ -561,113 +576,6 @@ const AddAuctionForm: React.FC = () => {
                               />
                             </FormControl>
                           </div>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-
-                  <div className="col-span-4">
-                    <FormField
-                      control={form.control}
-                      name="buyNowPrice"
-                      render={({ field }) => (
-                        <FormItem className="flex flex-col">
-                          <FormLabel className="leading-[19.2px] text-[#444444] text-[16px] font-normal">
-                            Buy Now Price
-                          </FormLabel>
-                          <div className="flex justify-between mt-2 w-full whitespace-nowrap rounded-md border border-solid border-[#B0B0B0] h-[51px]">
-                            <div className="gap-3 self-stretch px-4 dark:!text-[#6841A5] text-sm font-semibold leading-tight text-[#0057A8] dark:bg-[#482D721A] bg-gray-200 rounded-l-lg h-[49px] w-[42px] flex items-center justify-center">
-                              $
-                            </div>
-                            <FormControl>
-                              <Input
-                                placeholder="0.00"
-                                type="number"
-                                className="flex-1 shrink gap-2 self-stretch py-3 pr-5 pl-4 my-auto text-base leading-snug rounded-lg min-w-[100px] border-none h-[50px] dark:!text-black"
-                                {...field}
-                              />
-                            </FormControl>
-                          </div>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                </div>
-                     <FormField
-                  control={form.control}
-                  name="bidIncrement"
-                  render={({ field }) => (
-                    <FormItem className="flex flex-col">
-                      <FormLabel className="leading-[19.2px] text-[#444444] text-[16px] font-normal">
-                        Bid Increment<span className="text-red-500">*</span>
-                      </FormLabel>
-                      <div className="flex justify-between mt-2 w-full whitespace-nowrap rounded-md border border-solid border-[#B0B0B0] h-[51px]">
-                        <div className="gap-3 self-stretch px-4 dark:!text-[#6841A5] text-sm font-semibold leading-tight text-[#0057A8] dark:bg-[#482D721A] bg-gray-200 rounded-l-lg h-[49px] w-[42px] flex items-center justify-center">
-                          $
-                        </div>
-                        <FormControl>
-                          <Input
-                            placeholder="0.00"
-                            type="number"
-                            className="flex-1 shrink gap-2 self-stretch py-3 pr-5 pl-4 my-auto text-base leading-snug rounded-lg min-w-[100px] border-none h-[50px] dark:!text-black"
-                            {...field}
-                          />
-                        </FormControl>
-                      </div>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <div className="grid grid-cols-12 gap-4">
-                  <div className="col-span-6 w-auto">
-                    <FormField
-                      control={form.control}
-                      name="startingDateAndTime"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="leading-[19.2px] text-[#444444] text-[16px] font-normal">
-                            Starting Day & Time<span className="text-red-500">*</span>
-                          </FormLabel>
-                          <FormControl>
-                            <DateTimePicker
-                              hourCycle={24}
-                              value={startDate}
-                              onChange={(date) => {
-                                setStartDate(date)
-                                field.onChange(date)
-                              }}
-                              className="border-[#B0B0B0] dark:bg-white dark:hover:text-[#C5C5C5] dark:text-[#444444]"
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-
-                  <div className="col-span-6 w-auto">
-                    <FormField
-                      control={form.control}
-                      name="endingDateAndTime"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="leading-[19.2px] text-[#444444] text-[16px] font-normal">
-                            Ending Day & Time<span className="text-red-500">*</span>
-                          </FormLabel>
-                          <FormControl>
-                            <DateTimePicker
-                              hourCycle={24}
-                              value={endDate}
-                              onChange={(date) => {
-                                setEndDate(date)
-                                field.onChange(date)
-                              }}
-                              className="border-[#B0B0B0] dark:bg-white dark:hover:text-[#C5C5C5] dark:text-[#444444]"
-                            />
-                          </FormControl>
                           <FormMessage />
                         </FormItem>
                       )}
@@ -752,7 +660,6 @@ const AddAuctionForm: React.FC = () => {
                   </div>
                 ) : null}
 
-                {/* Add country and state fields here */}
                 <div>
                   <h3>Select Country:</h3>
                   <div className="grid grid-cols-12 gap-4">
@@ -830,7 +737,7 @@ const AddAuctionForm: React.FC = () => {
 
                 <FormField
                   control={form.control}
-                  name="hasCOA"
+                  name="coa"
                   render={({ field }) => (
                     <FormItem className="flex flex-row items-start space-x-3 space-y-0 mt-4">
                       <FormControl>
@@ -838,7 +745,7 @@ const AddAuctionForm: React.FC = () => {
                       </FormControl>
                       <div className="space-y-1 leading-none">
                         <FormLabel className="text-sm font-normal text-[#444444]">
-                          Certificate of Autheticity (COA)
+                          Certificate of Authenticity (COA)
                         </FormLabel>
                         <p className="text-xs text-muted-foreground">Upload a COA document for this product</p>
                       </div>
@@ -846,7 +753,7 @@ const AddAuctionForm: React.FC = () => {
                   )}
                 />
 
-                {form.watch("hasCOA") && (
+                {form.watch("coa") && (
                   <div className="border border-dashed border-[#9C9C9C] p-4 rounded-md">
                     <FormLabel className="leading-[19.2px] text-[#444444] text-[16px] font-normal">
                       Upload COA Document
@@ -866,56 +773,21 @@ const AddAuctionForm: React.FC = () => {
 
                 <FormField
                   control={form.control}
-                  name="makeAnOfferCheck"
+                  name="buyIndividually"
                   render={({ field }) => (
                     <FormItem className="flex flex-row items-start space-x-3 space-y-0 mt-4">
                       <FormControl>
                         <Checkbox checked={field.value} onCheckedChange={field.onChange} />
                       </FormControl>
                       <div className="space-y-1 leading-none">
-                        <FormLabel className="text-sm font-normal text-[#444444]">
-                          Allow users to make an offer
-                        </FormLabel>
+                        <FormLabel className="text-sm font-normal text-[#444444]">Option to Buy Individually</FormLabel>
                         <p className="text-xs text-muted-foreground">
-                          Enable this to allow users to make custom offers
+                          Allow customers to purchase a single product at a time
                         </p>
                       </div>
                     </FormItem>
                   )}
                 />
-
-                {form.watch("makeAnOfferCheck") && (
-                  <FormField
-                    control={form.control}
-                    name="makeAnOfferValue"
-                    render={({ field }) => (
-                      <FormItem className="flex flex-col">
-                        <FormLabel className="leading-[19.2px] text-[#444444] text-[16px] font-normal">
-                          Minimum Offer Value
-                        </FormLabel>
-                        <div className="flex justify-between mt-2 w-full whitespace-nowrap rounded-md border border-solid border-[#B0B0B0] h-[51px]">
-                          <div className="gap-3 self-stretch px-4 dark:!text-[#6841A5] text-sm font-semibold leading-tight text-[#0057A8] dark:bg-[#482D721A] bg-gray-200 rounded-l-lg h-[49px] w-[42px] flex items-center justify-center">
-                            $
-                          </div>
-                          <FormControl>
-                            <Input
-                              placeholder="0.00"
-                              type="number"
-                              className="flex-1 shrink gap-2 self-stretch py-3 pr-5 pl-4 my-auto text-base leading-snug rounded-lg min-w-[240px] border-none h-[50px] dark:!text-black"
-                              {...field}
-                            />
-                          </FormControl>
-                        </div>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                )}
-
-                
-
-
-           
 
                 <FormField
                   control={form.control}
@@ -927,7 +799,7 @@ const AddAuctionForm: React.FC = () => {
                       </FormLabel>
                       <FormControl>
                         <Textarea
-                          placeholder="Type Product Policy Here"
+                          placeholder="Enter detailed product policies here"
                           className="py-3 resize-none border-[#9E9E9E] dark:!text-black"
                           rows={3}
                           {...field}
@@ -938,21 +810,29 @@ const AddAuctionForm: React.FC = () => {
                   )}
                 />
               </div>
-              <div className="w-[600px] h-full mt-[16px] border border-[#B0B0B0] rounded-lg">
-                <ProductGallery onImageChange={handleImageChange} />
+              <div className="w-full md:w-[600px] h-full mt-[16px] border border-[#B0B0B0] rounded-lg">
+                <ProductGallery onImageChange={handleImageChange} existingImages={existingImages} />
               </div>
             </div>
-            <div className="flex justify-end mt-6">
-              <Button type="submit" className="py-[12px] px-[24px]">
-                Confirm
+            <div className="flex justify-end mt-6 gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => onOpenChange(false)}
+                className="py-[12px] px-[24px]"
+              >
+                Cancel
+              </Button>
+              <Button type="submit" className="py-[12px] px-[24px]" disabled={isPending}>
+                {isPending ? "Updating..." : "Update Product"}
               </Button>
             </div>
           </form>
         </Form>
-      </div>
-    </section>
+      </DialogContent>
+    </Dialog>
   )
 }
 
-export default AddAuctionForm
+export default EditProductDialog
 

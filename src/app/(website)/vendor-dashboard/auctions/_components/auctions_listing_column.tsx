@@ -21,9 +21,11 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 import { toast } from "sonner"
+import EditProductDialog from "./edit-product-dialog"
 
 const ActionCell = ({ product }: { product: Product }) => {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
   const queryClient = useQueryClient()
 
   const handleDelete = async () => {
@@ -60,12 +62,15 @@ const ActionCell = ({ product }: { product: Product }) => {
           align="end"
           className="bg-white h-auto w-[110px] rounded-lg shadow-[4px_4px_8px_0px_#0000000D,-4px_-4px_8px_0px_#0000000D] "
         >
-          <DropdownMenuItem className="p-[8px] hover:bg-[#E6EEF6] dark:hover:bg-[#482D721A] focus:outline-none focus:ring-0 focus-visible:ring-0 focus-visible:ring-offset-0 cursor-pointer dark:!text-[#6841A5] rounded-t-[8px]">
+          <DropdownMenuItem
+            className="p-[8px] hover:bg-[#E6EEF6] dark:hover:bg-[#482D721A] focus:outline-none focus:ring-0 focus-visible:ring-0 focus-visible:ring-offset-0 cursor-pointer dark:!text-[#6841A5] rounded-t-[8px]"
+            onClick={() => setIsEditDialogOpen(true)}
+          >
             Edit
           </DropdownMenuItem>
-          <DropdownMenuItem className="p-[8px] hover:bg-[#E6EEF6] dark:hover:bg-[#482D721A] focus:outline-none focus:ring-0 focus-visible:ring-0 focus-visible:ring-offset-0 cursor-pointer dark:!text-[#6841A5]">
+          {/* <DropdownMenuItem className="p-[8px] hover:bg-[#E6EEF6] dark:hover:bg-[#482D721A] focus:outline-none focus:ring-0 focus-visible:ring-0 focus-visible:ring-offset-0 cursor-pointer dark:!text-[#6841A5]">
             Details
-          </DropdownMenuItem>
+          </DropdownMenuItem> */}
           <DropdownMenuItem
             className="p-[8px] text-red-600 hover:bg-[#E6EEF6] dark:hover:bg-[#482D721A] rounded-b-[8px] focus:outline-none focus:ring-0 focus-visible:ring-0 focus-visible:ring-offset-0 cursor-pointer"
             onClick={() => setIsDeleteDialogOpen(true)}
@@ -74,6 +79,11 @@ const ActionCell = ({ product }: { product: Product }) => {
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
+
+      {/* Edit Dialog */}
+      {isEditDialogOpen && (
+        <EditProductDialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen} product={product} />
+      )}
 
       <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
         <AlertDialogContent>
@@ -167,6 +177,5 @@ export const AuctionListingColumns: ColumnDef<Product>[] = [
     header: "Actions", // Column header
     cell: ({ row }) => <ActionCell product={row.original} />,
   },
-  
 ]
 
