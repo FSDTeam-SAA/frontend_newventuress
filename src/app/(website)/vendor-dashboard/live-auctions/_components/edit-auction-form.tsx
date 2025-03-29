@@ -1,22 +1,26 @@
 "use client"
-import React, { useEffect, useState } from "react"
+import type React from "react"
+import { useEffect, useState } from "react"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import * as z from "zod"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { InputWithTags } from "@/components/ui/input-with-tags"
 import { Textarea } from "@/components/ui/textarea"
+import { InputWithTags } from "@/components/ui/input-with-tags"
 import { Checkbox } from "@/components/ui/checkbox"
-import ProductGallery from "@/components/shared/imageUpload/ProductGallery"
 import { DateTimePicker } from "@/components/ui/datetime-picker"
+import ProductGallery from "@/components/shared/imageUpload/ProductGallery"
 import { useSession } from "next-auth/react"
 import { useMutation, useQuery } from "@tanstack/react-query"
 import { toast } from "sonner"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import type { AuctionDataType } from "@/types/vendorAuction"
+import { useQueryClient } from "@tanstack/react-query"
 
-// Update the form schema to include country and state fields
+// Same form schema as AddAuctionForm
 const formSchema = z.object({
   title: z.string().min(1, "Title is required"),
   shortDescription: z.string(),
@@ -46,23 +50,31 @@ const formSchema = z.object({
   productPolicy: z.string().optional(),
 })
 
-const AddAuctionForm: React.FC = () => {
+interface EditAuctionDialogProps {
+  open: boolean
+  onOpenChange: (open: boolean) => void
+  auction: AuctionDataType | null
+}
+
+const EditAuctionDialog: React.FC<EditAuctionDialogProps> = ({ open, onOpenChange, auction }) => {
   const [images, setImages] = useState<File[]>([])
+  const [existingImages, setExistingImages] = useState<string[]>([])
   const [coaImage, setCoaImage] = useState<File | null>(null)
-  const [formValues, setFormValues] = useState({})
   const [selectedIndustry, setSelectedIndustry] = useState<string>("")
   const [selectedCategory, setSelectedCategory] = useState<string>("")
   const [categories, setCategories] = useState<any[]>([])
   const [subCategories, setSubCategories] = useState<any[]>([])
   const [startDate, setStartDate] = useState<Date | undefined>(new Date())
   const [endDate, setEndDate] = useState<Date | undefined>(new Date())
-
-  // Add state variables for locations, countries, and states
   const [locations, setLocations] = useState<any[]>([])
   const [countries, setCountries] = useState<string[]>([])
   const [states, setStates] = useState<string[]>([])
   const [selectedCountry, setSelectedCountry] = useState<string>("")
+  const [tags, setTags] = useState<string[]>([])
 
+  const queryClient = useQueryClient()
+
+  
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -73,7 +85,7 @@ const AddAuctionForm: React.FC = () => {
       category: "",
       subCategory: "",
       openingPrice: "",
-      reservePrice: "", 
+      reservePrice: "",
       buyNowPrice: "",
       startingDateAndTime: new Date(),
       endingDateAndTime: new Date(),
@@ -94,27 +106,6 @@ const AddAuctionForm: React.FC = () => {
       productPolicy: "",
     },
   })
-
-  const [tags, setTags] = React.useState<string[]>([])
-
-  useEffect(() => {
-    form.setValue("tags", tags)
-    form.trigger("tags")
-    form.setValue(
-      "images",
-      images.map((image) => image.name),
-    )
-  }, [tags, form, images])
-
-  const handleImageChange = (images: File[]) => {
-    setImages(images)
-    setFormValues({ ...formValues, images })
-  }
-
-  const handleCoaImageChange = (image: File) => {
-    setCoaImage(image)
-    setFormValues({ ...formValues, coaImage: image })
-  }
 
   const session = useSession()
   const token = session.data?.user.token
@@ -198,18 +189,22 @@ const AddAuctionForm: React.FC = () => {
   useEffect(() => {
     if (selectedIndustry) {
       refetchCategories()
-      form.setValue("category", "")
-      form.setValue("subCategory", "")
-      setSelectedCategory("")
+      if (!auction) {
+        form.setValue("category", "")
+        form.setValue("subCategory", "")
+        setSelectedCategory("")
+      }
     }
-  }, [selectedIndustry, refetchCategories, form])
+  }, [selectedIndustry, refetchCategories, form, auction])
 
   useEffect(() => {
     if (selectedCategory) {
       refetchSubCategories()
-      form.setValue("subCategory", "")
+      if (!auction) {
+        form.setValue("subCategory", "")
+      }
     }
-  }, [selectedCategory, refetchSubCategories, form])
+  }, [selectedCategory, refetchSubCategories, form, auction])
 
   // Check if THC and CBD inputs should be disabled
   const shouldDisableThcCbd = () => {
@@ -217,27 +212,106 @@ const AddAuctionForm: React.FC = () => {
     return categoryName === "Accessories" || categoryName === "Apparel"
   }
 
-  const { mutate } = useMutation<any, unknown, FormData>({
-    mutationKey: ["add-auction"],
-    mutationFn: (formData) =>
-      fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/vendor/auction/create`, {
-        method: "POST",
+  // Populate form with auction data when it changes
+  useEffect(() => {
+    if (auction) {
+      console.log("Setting form values with auction data:", auction._id)
+      form.reset({
+        title: auction.title || "",
+        shortDescription: auction.shortDescription || "",
+        description: auction.description || "",
+        industry: auction.industry || "",
+        category: "",
+        subCategory: auction.subCategory || "",
+        openingPrice: auction.openingPrice?.toString() || "",
+        reservePrice: auction.reservePrice?.toString() || "",
+        buyNowPrice: auction.buyNowPrice?.toString() || "",
+        startingDateAndTime: auction.startingDateAndTime ? new Date(auction.startingDateAndTime) : new Date(),
+        endingDateAndTime: auction.endingDateAndTime ? new Date(auction.endingDateAndTime) : new Date(),
+        quantity: auction.quantity?.toString() || "",
+        tags: auction.tags || [],
+        thc: auction.thc?.toString() || "",
+        cbd: auction.cbd?.toString() || "",
+        country: auction.country || "",
+        state: auction.state || "",
+        makeAnOfferCheck: auction.makeAnOfferCheck || false,
+        makeAnOfferValue: auction.makeAnOfferValue?.toString() || "",
+        hasCOA: auction.hasCOA || false,
+        images: [],
+        coaImage: null,
+        auctionType: auction.auctionType || "",
+        productCondition: auction.productCondition || "",
+        bidIncrement: auction.bidIncrement?.toString() || "",
+        productPolicy: auction.productPolicy || "",
+      })
+
+      setSelectedIndustry(auction.industry || "")
+      setSelectedCategory("")
+      setSelectedCountry(auction.country || "")
+      setTags(auction.tags || [])
+      setStartDate(auction.startingDateAndTime ? new Date(auction.startingDateAndTime) : new Date())
+      setEndDate(auction.endingDateAndTime ? new Date(auction.endingDateAndTime) : new Date())
+
+      // Set existing images
+      if (auction.images && auction.images.length > 0) {
+        setExistingImages(auction.images)
+      } else {
+        setExistingImages([])
+      }
+    }
+  }, [auction, form])
+
+  useEffect(() => {
+    form.setValue("tags", tags)
+    form.trigger("tags")
+    form.setValue(
+      "images",
+      images.map((image) => image.name),
+    )
+  }, [tags, form, images])
+
+  const handleImageChange = (newImages: File[]) => {
+    setImages(newImages)
+  }
+
+  const handleCoaImageChange = (image: File) => {
+    setCoaImage(image)
+  }
+
+  const { mutate, isPending } = useMutation({
+    mutationFn: async (formData: FormData) => {
+      if (!auction?._id) throw new Error("Auction ID is missing")
+
+      return fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/vendor/update/auction/${auction._id}`, {
+        method: "PUT",
         headers: {
           Authorization: `Bearer ${token}`,
         },
         body: formData,
-      }).then((res) => res.json()),
-
-    onSuccess: (formData) => {
-      if (formData.status === false) {
-        toast.error(formData.message, {
+      }).then((res) => res.json())
+    },
+    onSuccess: (data) => {
+      if (data.status === false) {
+        toast.error(data.message, {
           position: "top-right",
           richColors: true,
         })
         return
       }
-      form.reset()
-      toast.success(formData.message, {
+
+      toast.success(data.message || "Auction updated successfully", {
+        position: "top-right",
+        richColors: true,
+      })
+
+      // Invalidate and refetch auctions data
+      queryClient.invalidateQueries({ queryKey: ["vendor-auctions"] })
+
+      // Close the dialog
+      onOpenChange(false)
+    },
+    onError: (error) => {
+      toast.error("Failed to update auction: " + error.message, {
         position: "top-right",
         richColors: true,
       })
@@ -245,6 +319,14 @@ const AddAuctionForm: React.FC = () => {
   })
 
   const onSubmit = (data: z.infer<typeof formSchema>) => {
+    if (!auction?._id) {
+      toast.error("Auction ID is missing", {
+        position: "top-right",
+        richColors: true,
+      })
+      return
+    }
+
     const formData = new FormData()
     formData.append("title", data.title)
     formData.append("shortDescription", data.shortDescription)
@@ -275,6 +357,10 @@ const AddAuctionForm: React.FC = () => {
     formData.append("makeAnOfferValue", data.makeAnOfferValue || "")
     formData.append("hasCOA", data.hasCOA.toString())
 
+    // Append existing images that should be kept
+    formData.append("existingImages", JSON.stringify(existingImages))
+
+    // Append new images if any
     if (images.length > 0) {
       images.forEach((image) => {
         formData.append("images", image)
@@ -290,24 +376,24 @@ const AddAuctionForm: React.FC = () => {
     formData.append("bidIncreament", data.bidIncrement)
     formData.append("productPolicy", data.productPolicy || "")
 
-    console.log(data)
     mutate(formData)
   }
 
+  useEffect(() => {
+    console.log("EditAuctionDialog mounted with open:", open, "and auction:", auction?._id)
+  }, [open, auction])
+
   return (
-    <section className="pb-[60px]">
-      <div className="bg-white rounded-[24px] p-[32px]">
-        <div
-          className={
-            "bg-primary dark:bg-pinkGradient px-4 py-3 mb- rounded-t-3xl text-white text-[32px] leading-[38px] font-semibold h-[78px] flex items-center"
-          }
-        >
-          Add Auction Product
-        </div>
+    <Dialog open={open} onOpenChange={onOpenChange} modal={true}>
+      <DialogContent className="max-w-7xl max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle className="text-2xl font-semibold">Edit Auction</DialogTitle>
+        </DialogHeader>
+
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)}>
-            <div className="flex gap-4">
-              <div className="w-[58%] space-y-[16px] mt-[16px]">
+            <div className="flex gap-4 flex-col md:flex-row">
+              <div className="w-full md:w-[58%] space-y-[16px] mt-[16px]">
                 <FormField
                   control={form.control}
                   name="auctionType"
@@ -393,7 +479,7 @@ const AddAuctionForm: React.FC = () => {
                     </FormItem>
                   )}
                 />
-                
+
                 <FormField
                   control={form.control}
                   name="productCondition"
@@ -488,7 +574,6 @@ const AddAuctionForm: React.FC = () => {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className="leading-[19.2px] text-[#444444] text-[16px] font-normal">
-
                         Sub Category<span className="text-red-500">*</span>
                       </FormLabel>
                       <Select onValueChange={field.onChange} value={field.value} disabled={!selectedCategory}>
@@ -595,7 +680,8 @@ const AddAuctionForm: React.FC = () => {
                     />
                   </div>
                 </div>
-                     <FormField
+
+                <FormField
                   control={form.control}
                   name="bidIncrement"
                   render={({ field }) => (
@@ -912,11 +998,6 @@ const AddAuctionForm: React.FC = () => {
                   />
                 )}
 
-                
-
-
-           
-
                 <FormField
                   control={form.control}
                   name="productPolicy"
@@ -938,21 +1019,29 @@ const AddAuctionForm: React.FC = () => {
                   )}
                 />
               </div>
-              <div className="w-[600px] h-full mt-[16px] border border-[#B0B0B0] rounded-lg">
-                <ProductGallery onImageChange={handleImageChange} />
+              <div className="w-full md:w-[600px] h-full mt-[16px] border border-[#B0B0B0] rounded-lg">
+                <ProductGallery onImageChange={handleImageChange} existingImages={existingImages} />
               </div>
             </div>
-            <div className="flex justify-end mt-6">
-              <Button type="submit" className="py-[12px] px-[24px]">
-                Confirm
+            <div className="flex justify-end mt-6 gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => onOpenChange(false)}
+                className="py-[12px] px-[24px]"
+              >
+                Cancel
+              </Button>
+              <Button type="submit" className="py-[12px] px-[24px]" disabled={isPending}>
+                {isPending ? "Updating..." : "Update Auction"}
               </Button>
             </div>
           </form>
         </Form>
-      </div>
-    </section>
+      </DialogContent>
+    </Dialog>
   )
 }
 
-export default AddAuctionForm
+export default EditAuctionDialog
 

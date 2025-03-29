@@ -214,7 +214,7 @@ const SignUpOverview = () => {
     <Button disabled={loading || isPending} className="mt-[20px]" onClick={onRegistration}>
     <span className="flex items-center gap-x-2">Next {(loading || isPending) ? <Loader2 className="animate-spin h-3 w-3" /> : "→"}</span></Button> <AdminApprovalModal
         isOpen={isModalOpen}
-        message={approvalStatus == "pending" ? "Your licenses are “pending” and will require further review. We will send you an email once we approve" : approvalStatus == "one" ? "We were able to verify and approve one or more of your licenses, the remaining pending licenses will require further review. Please check your email to complete your registration." : "We were able to verify and approve your licenses. Please check your email to complete your registration."}
+        message={approvalStatus == "pending" ? "Your licenses are “pending” and will require further review. We will send you an email once we approve." : approvalStatus == "one" ? "We were able to verify and approve one or more of your licenses, the remaining pending licenses will require further review. Please check your email to complete your registration." : "We were able to verify and approve your licenses. Please check your email to complete your registration."}
         onClose={() => {
           setIsModalOpen(false);
           setLoading(true)
