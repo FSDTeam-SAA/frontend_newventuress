@@ -26,8 +26,24 @@ export async function SignInWithEmailAndPassword(data: LoginFormValues) {
 
     const apiData = await apiResponse.json()
 
-    // If the API returns an error, return that specific message
     if (!apiResponse.ok || !apiData.status) {
+      if (apiData.message === "Wrong password") {
+        return {
+          success: false,
+          message: "The password you entered is incorrect.",
+        } as ServerResType
+      } else if (apiData.message === "No user found") {
+        return {
+          success: false,
+          message: "Please check your email or Sign Up.",
+        } as ServerResType
+      } else if (apiData.message === "Access denied. No verified license found.") {
+        return {
+          success: false,
+          message: "You licence is under verification.",
+        } as ServerResType
+      }
+      // Default fallback for other API errors
       return {
         success: false,
         message: apiData.message || "Authentication failed",
