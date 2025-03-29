@@ -1,71 +1,83 @@
 "use client"
 
 import type React from "react"
-
 import { Button } from "@/components/ui/button"
 import { ImageIcon, Plus, Trash2 } from "lucide-react"
 import Image from "next/image"
-import { useRef, useState } from "react"
+import { useRef, useState, useEffect } from "react"
 
+interface ProductGalleryProps {
+  onImageChange: (images: File[]) => void;
+  existingImages?: string[];
+}
 
-
-export default function ProductGallery({onImageChange}: any) {
+export default function ProductGallery({ onImageChange, existingImages = [] }: ProductGalleryProps) {
   const [files, setFiles] = useState<File[]>([])
   const fileInputRef = useRef<HTMLInputElement>(null)
+
+  useEffect(() => {
+    if (existingImages.length > 0) {
+      console.log("Existing images loaded:", existingImages)
+    }
+  }, [existingImages])
 
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault()
     const droppedFiles = Array.from(e.dataTransfer.files)
     const imageFiles = droppedFiles.filter(
-      (file) => file.type.startsWith("image/jpeg") || file.type.startsWith("image/png"),
+      (file) => file.type.startsWith("image/jpeg") || file.type.startsWith("image/png")
     )
     setFiles((prev) => [...prev, ...imageFiles])
+    onImageChange([...files, ...imageFiles])
   }
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       const selectedFiles = Array.from(e.target.files)
       const imageFiles = selectedFiles.filter(
-        (file) => file.type.startsWith("image/jpeg") || file.type.startsWith("image/png"),
+        (file) => file.type.startsWith("image/jpeg") || file.type.startsWith("image/png")
       )
       setFiles((prev) => [...prev, ...imageFiles])
-      onImageChange((prev: File[]) => [...prev, ...imageFiles])
+      onImageChange([...files, ...imageFiles])
     }
   }
 
   const removeImage = (index: number) => {
-    
-    setFiles((prev) => {
-      const newFiles = prev.filter((_, i) => i !== index)
-      console.log("Image removed. Remaining images:", newFiles.length)
-      return newFiles
-    })
+    setFiles((prev) => prev.filter((_, i) => i !== index))
   }
 
   const handlePlusClick = () => {
     fileInputRef.current?.click()
   }
 
-
-
   return (
     <div className="w-full max-w-2xl p-6 bg-white rounded-lg shadow-sm">
       <h2 className="text-base text-[#232321] dark:text-gradient-pink font-medium mb-4">Product Gallery</h2>
 
-      {/* Dropzone */}
       <div
         className="relative border-[1px] border-dashed border-[#919792] dark:border-[#6841A5] rounded-lg p-8 mb-4"
         onDragOver={(e) => e.preventDefault()}
         onDrop={handleDrop}
       >
-        {files.length > 0 ? (
+        {files.length > 0 || existingImages.length > 0 ? (
           <div className="grid grid-cols-3 gap-4">
+            {existingImages.map((imageUrl, index) => (
+              <div key={`existing-${index}`} className="relative">
+                <Image
+                  src={imageUrl}
+                  alt={`Existing image ${index}`}
+                  width={200}
+                  height={200}
+                  className="w-full h-32 object-cover rounded-lg"
+                />
+              </div>
+            ))}
             {files.map((file, index) => {
               const imageUrl = URL.createObjectURL(file)
               return (
-                <div key={index} className="relative">
+                <div key={`uploaded-${index}`} className="relative">
                   <Image
-                    src={imageUrl || "/placeholder.svg"}
+                    src={imageUrl}
                     alt={file.name}
                     width={200}
                     height={200}
@@ -104,16 +116,6 @@ export default function ProductGallery({onImageChange}: any) {
           <Plus className="h-5 w-5" />
         </Button>
       </div>
-
-      {/* <div className="flex gap-2 justify-end">
-        <button type="button" className="px-8 border border-[#B0B0B0] rounded-lg text-gradient dark:text-gradient-pink">
-          Update
-        </button>
-        <Button type="button" onClick={handleImageConfirmation}>
-          Confirm
-        </Button>
-      </div> */}
     </div>
   )
 }
-
