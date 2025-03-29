@@ -84,7 +84,7 @@ function AddListingForm({ setShowAddAuction }: Props) {
 
   // Add the fetch function for locations after the session declaration
   const session = useSession()
-  const userid = session.data?.user.id
+  const userid = session.data?.user.id ?? ""
 
   // Fetch locations data
   const token = session.data?.user.token
@@ -254,6 +254,7 @@ function AddListingForm({ setShowAddAuction }: Props) {
     formData.append("thc", data.thc || "")
     formData.append("cbd", data.cbd || "")
     formData.append("country", data.country)
+    formData.append("vendorID", userid)
 
     // Only append state if country is US or Canada, otherwise send null
     if (data.country === "United States" || data.country === "Canada") {
