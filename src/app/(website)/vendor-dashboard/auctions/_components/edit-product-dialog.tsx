@@ -61,6 +61,7 @@ const EditProductDialog: React.FC<EditProductDialogProps> = ({ open, onOpenChang
   const [states, setStates] = useState<string[]>([])
   const [selectedCountry, setSelectedCountry] = useState<string>("")
   const [tags, setTags] = useState<string[]>([])
+  console.log(existingImages)
 
   const queryClient = useQueryClient()
 
@@ -811,6 +812,7 @@ const EditProductDialog: React.FC<EditProductDialogProps> = ({ open, onOpenChang
                 />
               </div>
               <div className="w-full md:w-[600px] h-full mt-[16px] border border-[#B0B0B0] rounded-lg">
+                
                 <ProductGallery onImageChange={handleImageChange} existingImages={existingImages} />
               </div>
             </div>
