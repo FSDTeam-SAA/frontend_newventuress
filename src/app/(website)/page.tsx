@@ -7,7 +7,7 @@ import Hero from "@/components/hero/Hero";
 import PopularCategories from "@/components/PopularCategories/PopularCategories";
 import FAQSection from "@/components/FAQSection/FAQSection";
 import PopularBlog from "@/components/shared/sections/popularBlogs/popularBlogs";
-import { ClientReviews } from "@/components/shared/clientReview/ClientReview";
+// import { ClientReviews } from "@/components/shared/clientReview/ClientReview";
 import { auth } from "@/auth";
 import BestOffer from "./_components/best_offer";
 
@@ -35,10 +35,12 @@ const Page = async () => {
             <FAQSection />
           </div>
         )}
+        <div className="pb-[80px]">
 
         {loggedin && <PopularBlog />}
+          </div>
 
-        {loggedin && <ClientReviews />}
+        {/* {loggedin && <ClientReviews />} */}
 
         {!loggedin && <BestOffer />}
       </div>

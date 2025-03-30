@@ -99,7 +99,7 @@ const ProductsContainer = ({ token }: Props) => {
       // Construct the URL with parameters
       if (selectedLocation && searchQuery && userId) {
         // For the location-specific endpoint, userID is part of the path
-        endpoint = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/products/all/location/${userId}`
+        endpoint = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/products/location`
 
         // Add query parameters
         params.append("country", selectedLocation.country)
