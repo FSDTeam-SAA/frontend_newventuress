@@ -10,7 +10,6 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { Textarea } from "@/components/ui/textarea"
 import { InputWithTags } from "@/components/ui/input-with-tags"
 import { Checkbox } from "@/components/ui/checkbox"
-import { DateTimePicker } from "@/components/ui/datetime-picker"
 import ProductGallery from "@/components/shared/imageUpload/ProductGallery"
 import { useSession } from "next-auth/react"
 import { useMutation, useQuery } from "@tanstack/react-query"
@@ -19,6 +18,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import type { AuctionDataType } from "@/types/vendorAuction"
 import { useQueryClient } from "@tanstack/react-query"
+import { ClientDateTimePicker } from "@/components/dateTime/client-date-time-picker"
 
 // Same form schema as AddAuctionForm
 const formSchema = z.object({
@@ -64,17 +64,30 @@ const EditAuctionDialog: React.FC<EditAuctionDialogProps> = ({ open, onOpenChang
   const [selectedCategory, setSelectedCategory] = useState<string>("")
   const [categories, setCategories] = useState<any[]>([])
   const [subCategories, setSubCategories] = useState<any[]>([])
-  const [startDate, setStartDate] = useState<Date | undefined>(new Date())
-  const [endDate, setEndDate] = useState<Date | undefined>(new Date())
+  const [startDate, setStartDate] = useState<Date | undefined>(undefined)
+  const [endDate, setEndDate] = useState<Date | undefined>(undefined)
   const [locations, setLocations] = useState<any[]>([])
   const [countries, setCountries] = useState<string[]>([])
   const [states, setStates] = useState<string[]>([])
   const [selectedCountry, setSelectedCountry] = useState<string>("")
   const [tags, setTags] = useState<string[]>([])
+  const [isClient, setIsClient] = useState(false)
 
   const queryClient = useQueryClient()
 
-  
+  // Initialize client-side state
+  useEffect(() => {
+    setIsClient(true)
+
+    // Only initialize dates if they're not already set
+    if (!startDate) {
+      setStartDate(new Date())
+    }
+    if (!endDate) {
+      setEndDate(new Date())
+    }
+  }, [startDate, endDate])
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -87,8 +100,8 @@ const EditAuctionDialog: React.FC<EditAuctionDialogProps> = ({ open, onOpenChang
       openingPrice: "",
       reservePrice: "",
       buyNowPrice: "",
-      startingDateAndTime: new Date(),
-      endingDateAndTime: new Date(),
+      startingDateAndTime: undefined,
+      endingDateAndTime: undefined,
       quantity: "",
       tags: [],
       thc: "",
@@ -214,8 +227,16 @@ const EditAuctionDialog: React.FC<EditAuctionDialogProps> = ({ open, onOpenChang
 
   // Populate form with auction data when it changes
   useEffect(() => {
-    if (auction) {
+    if (auction && isClient) {
       console.log("Setting form values with auction data:", auction._id)
+
+      // Set dates first to avoid hydration issues
+      const startingDate = auction.startingDateAndTime ? new Date(auction.startingDateAndTime) : new Date()
+      const endingDate = auction.endingDateAndTime ? new Date(auction.endingDateAndTime) : new Date()
+
+      setStartDate(startingDate)
+      setEndDate(endingDate)
+
       form.reset({
         title: auction.title || "",
         shortDescription: auction.shortDescription || "",
@@ -226,8 +247,8 @@ const EditAuctionDialog: React.FC<EditAuctionDialogProps> = ({ open, onOpenChang
         openingPrice: auction.openingPrice?.toString() || "",
         reservePrice: auction.reservePrice?.toString() || "",
         buyNowPrice: auction.buyNowPrice?.toString() || "",
-        startingDateAndTime: auction.startingDateAndTime ? new Date(auction.startingDateAndTime) : new Date(),
-        endingDateAndTime: auction.endingDateAndTime ? new Date(auction.endingDateAndTime) : new Date(),
+        startingDateAndTime: startingDate,
+        endingDateAndTime: endingDate,
         quantity: auction.quantity?.toString() || "",
         tags: auction.tags || [],
         thc: auction.thc?.toString() || "",
@@ -249,8 +270,6 @@ const EditAuctionDialog: React.FC<EditAuctionDialogProps> = ({ open, onOpenChang
       setSelectedCategory("")
       setSelectedCountry(auction.country || "")
       setTags(auction.tags || [])
-      setStartDate(auction.startingDateAndTime ? new Date(auction.startingDateAndTime) : new Date())
-      setEndDate(auction.endingDateAndTime ? new Date(auction.endingDateAndTime) : new Date())
 
       // Set existing images
       if (auction.images && auction.images.length > 0) {
@@ -259,7 +278,7 @@ const EditAuctionDialog: React.FC<EditAuctionDialogProps> = ({ open, onOpenChang
         setExistingImages([])
       }
     }
-  }, [auction, form])
+  }, [auction, form, isClient])
 
   useEffect(() => {
     form.setValue("tags", tags)
@@ -718,7 +737,7 @@ const EditAuctionDialog: React.FC<EditAuctionDialogProps> = ({ open, onOpenChang
                             Starting Day & Time<span className="text-red-500">*</span>
                           </FormLabel>
                           <FormControl>
-                            <DateTimePicker
+                            <ClientDateTimePicker
                               hourCycle={24}
                               value={startDate}
                               onChange={(date) => {
@@ -744,7 +763,7 @@ const EditAuctionDialog: React.FC<EditAuctionDialogProps> = ({ open, onOpenChang
                             Ending Day & Time<span className="text-red-500">*</span>
                           </FormLabel>
                           <FormControl>
-                            <DateTimePicker
+                            <ClientDateTimePicker
                               hourCycle={24}
                               value={endDate}
                               onChange={(date) => {

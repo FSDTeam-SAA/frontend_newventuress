@@ -40,7 +40,7 @@ export async function SignInWithEmailAndPassword(data: LoginFormValues) {
       } else if (apiData.message === "Access denied. No verified license found.") {
         return {
           success: false,
-          message: "You licence is under verification.",
+          message: "Your licence is under verification.",
         } as ServerResType
       }
       // Default fallback for other API errors

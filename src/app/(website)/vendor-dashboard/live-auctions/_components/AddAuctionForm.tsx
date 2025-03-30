@@ -10,11 +10,11 @@ import { InputWithTags } from "@/components/ui/input-with-tags"
 import { Textarea } from "@/components/ui/textarea"
 import { Checkbox } from "@/components/ui/checkbox"
 import ProductGallery from "@/components/shared/imageUpload/ProductGallery"
-import { DateTimePicker } from "@/components/ui/datetime-picker"
 import { useSession } from "next-auth/react"
 import { useMutation, useQuery } from "@tanstack/react-query"
 import { toast } from "sonner"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { ClientDateTimePicker } from "@/components/dateTime/client-date-time-picker"
 
 // Update the form schema to include country and state fields
 const formSchema = z.object({
@@ -63,6 +63,19 @@ const AddAuctionForm: React.FC = () => {
   const [states, setStates] = useState<string[]>([])
   const [selectedCountry, setSelectedCountry] = useState<string>("")
 
+  // Client-side initialization of dates
+  useEffect(() => {
+    // Initialize dates on client-side only to avoid hydration mismatch
+    if (typeof window !== "undefined") {
+      setStartDate(new Date())
+      setEndDate(new Date())
+
+      // Update form values
+      form.setValue("startingDateAndTime", new Date())
+      form.setValue("endingDateAndTime", new Date())
+    }
+  }, [])
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -73,10 +86,10 @@ const AddAuctionForm: React.FC = () => {
       category: "",
       subCategory: "",
       openingPrice: "",
-      reservePrice: "", 
+      reservePrice: "",
       buyNowPrice: "",
-      startingDateAndTime: new Date(),
-      endingDateAndTime: new Date(),
+      startingDateAndTime: undefined,
+      endingDateAndTime: undefined,
       quantity: "",
       tags: [],
       thc: "",
@@ -393,7 +406,7 @@ const AddAuctionForm: React.FC = () => {
                     </FormItem>
                   )}
                 />
-                
+
                 <FormField
                   control={form.control}
                   name="productCondition"
@@ -488,7 +501,6 @@ const AddAuctionForm: React.FC = () => {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className="leading-[19.2px] text-[#444444] text-[16px] font-normal">
-
                         Sub Category<span className="text-red-500">*</span>
                       </FormLabel>
                       <Select onValueChange={field.onChange} value={field.value} disabled={!selectedCategory}>
@@ -595,7 +607,7 @@ const AddAuctionForm: React.FC = () => {
                     />
                   </div>
                 </div>
-                     <FormField
+                <FormField
                   control={form.control}
                   name="bidIncrement"
                   render={({ field }) => (
@@ -632,15 +644,17 @@ const AddAuctionForm: React.FC = () => {
                             Starting Day & Time<span className="text-red-500">*</span>
                           </FormLabel>
                           <FormControl>
-                            <DateTimePicker
-                              hourCycle={24}
-                              value={startDate}
-                              onChange={(date) => {
-                                setStartDate(date)
-                                field.onChange(date)
-                              }}
-                              className="border-[#B0B0B0] dark:bg-white dark:hover:text-[#C5C5C5] dark:text-[#444444]"
-                            />
+                            <div>
+                              <ClientDateTimePicker
+                                hourCycle={24}
+                                value={startDate}
+                                onChange={(date) => {
+                                  setStartDate(date)
+                                  field.onChange(date)
+                                }}
+                                className="border-[#B0B0B0] dark:bg-white dark:hover:text-[#C5C5C5] dark:text-[#444444]"
+                              />
+                            </div>
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -658,15 +672,17 @@ const AddAuctionForm: React.FC = () => {
                             Ending Day & Time<span className="text-red-500">*</span>
                           </FormLabel>
                           <FormControl>
-                            <DateTimePicker
-                              hourCycle={24}
-                              value={endDate}
-                              onChange={(date) => {
-                                setEndDate(date)
-                                field.onChange(date)
-                              }}
-                              className="border-[#B0B0B0] dark:bg-white dark:hover:text-[#C5C5C5] dark:text-[#444444]"
-                            />
+                            <div>
+                              <ClientDateTimePicker
+                                hourCycle={24}
+                                value={endDate}
+                                onChange={(date) => {
+                                  setEndDate(date)
+                                  field.onChange(date)
+                                }}
+                                className="border-[#B0B0B0] dark:bg-white dark:hover:text-[#C5C5C5] dark:text-[#444444]"
+                              />
+                            </div>
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -911,11 +927,6 @@ const AddAuctionForm: React.FC = () => {
                     )}
                   />
                 )}
-
-                
-
-
-           
 
                 <FormField
                   control={form.control}
