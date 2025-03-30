@@ -1,5 +1,5 @@
 // Packages
-import dynamic from "next/dynamic";
+// import dynamic from "next/dynamic";
 
 // Local imports
 
