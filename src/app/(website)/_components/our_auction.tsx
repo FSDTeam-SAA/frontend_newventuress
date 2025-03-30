@@ -53,9 +53,9 @@ const FeaturedCards = ({ data, isLoading }: FeaturedCardsProps) => {
   return content
 };
 
-const BiddingCard = dynamic(() => import("./bid-card"), {
-  ssr: false,
-});
+// const BiddingCard = dynamic(() => import("./bid-card"), {
+//   ssr: false,
+// });
 
 
 
@@ -103,7 +103,7 @@ export default function OurAuction({ token }: Props) {
         <FeaturedCards data={products} isLoading={isLoading} />
 
         <div className="space-y-4">
-          <BiddingCard product={products[4]} />
+          {/* <BiddingCard product={products[4]} /> */}
           <JoinAsSeller />
         </div>
       </div>
