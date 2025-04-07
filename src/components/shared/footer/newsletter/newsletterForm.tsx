@@ -32,7 +32,7 @@ const NewsletterForm = () => {
   const { mutate, isPending } = useMutation({
     mutationKey: ["newsletter"], // Unique key for the mutation
     mutationFn: (data: NewsletterFormValues) =>
-      fetch(`${process.env.NEXT_PUBLIC_WAITLIST_BACKEND_URL}/api/v1/newsletter`, {
+      fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/newsletter`, {
         method: "POST",
         headers: {
           "content-type": "application/json", // Set content type to JSON
