@@ -8,7 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
-import { Loader2, RefreshCw } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { TextAnimate } from "@/components/magicui/text-animate";
 import ErrorContainer from "@/components/ui/error-container";
 import { useSession, getSession } from "next-auth/react";
@@ -19,7 +19,7 @@ function BlogComments() {
   const { data: session, status } = useSession();
   const [usernameOrEmail, setUsernameOrEmail] = useState("");
   const [fullName, setFullName] = useState("");
-  const [autoRefresh, setAutoRefresh] = useState(true);
+  // const [autoRefresh, setAutoRefresh] = useState(true);
   
   const queryClient = useQueryClient();
 
@@ -57,7 +57,6 @@ function BlogComments() {
     data: comments,
     isError,
     error,
-    refetch,
     isFetching
   } = useQuery({
     queryKey: ["blog-comments", blogID],
@@ -78,7 +77,7 @@ function BlogComments() {
       return response.json();
     },
     enabled: !!blogID,
-    refetchInterval: autoRefresh ? 5000 : false, // Refetch every 5 seconds when autoRefresh is true
+    refetchInterval: 50000, 
     refetchOnWindowFocus: true,
     staleTime: 1000, // Consider data stale after 1 second
   });
@@ -127,14 +126,14 @@ function BlogComments() {
   };
 
   // Manual refresh handler
-  const handleManualRefresh = () => {
-    refetch();
-  };
+  // const handleManualRefresh = () => {
+  //   refetch();
+  // };
 
-  // Toggle auto-refresh
-  const toggleAutoRefresh = () => {
-    setAutoRefresh(prev => !prev);
-  };
+  // // Toggle auto-refresh
+  // const toggleAutoRefresh = () => {
+  //   setAutoRefresh(prev => !prev);
+  // };
 
   // Render Comments
   let content;
@@ -235,7 +234,7 @@ function BlogComments() {
       <div className="py-4">
         <div className="flex items-center justify-between mb-4">
           <div className="text-2xl font-medium leading-tight text-black">Comments</div>
-          <div className="flex items-center gap-4">
+          {/* <div className="flex items-center gap-4">
             <div className="flex items-center gap-2">
               <input 
                 type="checkbox" 
@@ -256,7 +255,7 @@ function BlogComments() {
               <RefreshCw className={`h-3 w-3 ${isFetching ? 'animate-spin' : ''}`} />
               Refresh
             </Button>
-          </div>
+          </div> */}
         </div>
         {isFetching && !isLoading && (
           <div className="flex items-center justify-center py-2 text-sm text-gray-500">

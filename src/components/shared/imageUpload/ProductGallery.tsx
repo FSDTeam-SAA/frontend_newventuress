@@ -108,7 +108,7 @@ export default function ProductGallery({ onImageChange, existingImages = [] }: P
           multiple
           ref={fileInputRef}
         />
-      </div>
+      </div> 
 
       <div className="flex items-center justify-between mb-4">
         <Button type="button" variant="ghost" size="icon" className="text-gray-500 hover:text-gray-700"></Button>
