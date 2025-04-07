@@ -9,6 +9,7 @@ import {
   UserPlus,
 } from "lucide-react";
 import Image from "next/image";
+import { GrSupport } from "react-icons/gr";
 
 export type SidebarContentType = {
   id: number;
@@ -92,9 +93,15 @@ export const sidebarContents = [
   },
   {
     id: 9,
-    name: "Membership",
+    name: "Membership Purchase",
     icon: <UserPlus className="h-[16px] w-[16px]" />,
     href: "/vendor-dashboard/membership",
+  },
+  {
+    id: 10,
+    name: "Help & Support",
+    icon: <GrSupport className="h-[16px] w-[16px]" />,
+    href: "/vendor-dashboard/help-support",
   }
 ] as SidebarContentType[];
 
