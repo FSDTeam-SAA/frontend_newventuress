@@ -16,7 +16,7 @@ export async function fetchContactMessages(email: string, token: string): Promis
   }
 
   try {
-    const response = await fetch(`http://localhost:8001/api/contact/${email}`, {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/contact/${email}`, {
       headers: {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",

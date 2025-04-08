@@ -56,9 +56,11 @@ const PlansContainer = ({token, userId}: Props) => {
                   numberOfBids: 0,
                   price: 0,
                   updatedAt: new Date(),
-                  payMethod : "Credit Card",
-                  store : 0,
-                  time : "One Time",
+                  payMethod: "Credit Card",
+                  store: 0,
+                  time: "One Time",
+                  status: "active", // Added property
+                  paymentMethod: "Credit Card", // Added property
                 }}
 
                 userId={userId}

@@ -9,12 +9,13 @@ const MembershipContainer = () => {
  
   const session = useSession();
   const token = session.data?.user.token;
+  const userId = "67e8299d5f02580df72961cc"
   console.log({ token });
 
   const { data, isError, isLoading, error } = useQuery<MembershipResponse>({
     queryKey: ["membership"],
     queryFn: () =>
-      fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/memberships`, {
+      fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/membership/user/get/${userId}`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -96,7 +97,7 @@ const TableContainer = ({
   });
   return (
     <>
-      <DataTable table={table} columns={columns} title="Membership List" />
+      <DataTable table={table} columns={columns} title="My Plans" />
     </>
   );
 };
