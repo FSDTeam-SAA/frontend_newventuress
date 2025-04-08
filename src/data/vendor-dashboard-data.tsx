@@ -93,7 +93,7 @@ export const sidebarContents = [
   },
   {
     id: 9,
-    name: "Membership Purchase",
+    name: "Membership Purchased",
     icon: <UserPlus className="h-[16px] w-[16px]" />,
     href: "/vendor-dashboard/membership",
   },

@@ -1,4 +1,5 @@
 export type MembershipPlan = {
+
   _id: string;
   planType: string;
   description: string;
@@ -9,11 +10,20 @@ export type MembershipPlan = {
   createdAt: Date;
   updatedAt: Date;
   __v: number;
+  
+  sponsoredListingPlanID?: {
+    planTitle: string;
+  };
 
-
-  payMethod : string
+  membershipPlanID?: {
+    planType: string;
+  };
+  
+  payMethod?: string;
+  paymentMethod : string
   store : number
   time : string
+  status: string; // Added property
 };
 
 export type MembershipResponse = {
