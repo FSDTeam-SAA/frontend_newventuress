@@ -9,8 +9,8 @@ const MembershipContainer = () => {
  
   const session = useSession();
   const token = session.data?.user.token;
-  const userId = "67e8299d5f02580df72961cc"
-  console.log({ token });
+  const userId = session.data?.user.id;
+  // console.log({ token });
 
   const { data, isError, isLoading, error } = useQuery<MembershipResponse>({
     queryKey: ["membership"],

@@ -82,6 +82,12 @@ const PlansContainer = ({token, userId}: Props) => {
         ))}
       </div>
     );
+  }else{
+    content = (
+      <div className="flex items-center justify-center h-[300px]">
+        <h1 className="text-2xl font-bold text-gray-500">No Membership Plans Found</h1>
+      </div>
+    );
   }
 
   return content;
