@@ -56,9 +56,11 @@ const PlansContainer = ({token, userId}: Props) => {
                   numberOfBids: 0,
                   price: 0,
                   updatedAt: new Date(),
-                  payMethod : "Credit Card",
-                  store : 0,
-                  time : "One Time",
+                  payMethod: "Credit Card",
+                  store: 0,
+                  time: "One Time",
+                  status: "active", // Added property
+                  paymentMethod: "Credit Card", // Added property
                 }}
 
                 userId={userId}
@@ -78,6 +80,12 @@ const PlansContainer = ({token, userId}: Props) => {
             <PlansCard data={item} userId={userId} />
           </div>
         ))}
+      </div>
+    );
+  }else{
+    content = (
+      <div className="flex items-center justify-center h-[300px]">
+        <h1 className="text-2xl font-bold text-gray-500">No Membership Plans Found</h1>
       </div>
     );
   }
